@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../domain/usecases/quiz_generator.dart';
+import '../../../../injection_container.dart' as di;
+import 'fill_blanks_quiz_page.dart';
 
 class DailyChallengePage extends StatelessWidget {
   const DailyChallengePage({super.key});
@@ -109,13 +112,44 @@ class DailyChallengePage extends StatelessWidget {
     bool hasPulse,
   ) {
     return GestureDetector(
-      onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('$title - Coming Soon!'),
-            duration: const Duration(seconds: 2),
-          ),
-        );
+      onTap: () async {
+        if (title == 'Fill Blanks') {
+          // Show loading
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => const Center(
+              child: CircularProgressIndicator(color: Colors.white),
+            ),
+          );
+          
+          // Generate quiz
+          final generator = QuizGenerator(di.sl());
+          final questions = await generator.generateFillBlanksQuiz(questionCount: 5);
+          
+          // Close loading
+          if (context.mounted) Navigator.pop(context);
+          
+          if (questions.isNotEmpty && context.mounted) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => FillBlanksQuizPage(questions: questions),
+              ),
+            );
+          } else if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Failed to generate quiz')),
+            );
+          }
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('$title - Coming Soon!'),
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }
       },
       child: Container(
         padding: const EdgeInsets.all(16),
