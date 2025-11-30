@@ -6,6 +6,7 @@ import '../../../kural/presentation/bloc/kural_bloc.dart';
 import '../../../kural/presentation/pages/daily_kural_page.dart';
 import '../../../library/presentation/pages/library_page.dart';
 import '../../../quiz/presentation/pages/quiz_page.dart';
+import '../../../profile/presentation/pages/profile_page.dart';
 
 class HomeDashboardPage extends StatefulWidget {
   const HomeDashboardPage({super.key});
@@ -91,9 +92,7 @@ class _HomeDashboardPageState extends State<HomeDashboardPage> {
   }
 
   Widget _buildProfilePage() {
-    return const Center(
-      child: Text('Profile Page - Coming Soon'),
-    );
+    return const ProfilePage();
   }
 
   Widget _buildHeader() {
