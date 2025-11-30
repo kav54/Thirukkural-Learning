@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../kural/presentation/bloc/kural_bloc.dart';
 import '../../../kural/presentation/pages/daily_kural_page.dart';
+import '../../../library/presentation/pages/library_page.dart';
 
 class HomeDashboardPage extends StatefulWidget {
   const HomeDashboardPage({super.key});
@@ -16,9 +17,19 @@ class _HomeDashboardPageState extends State<HomeDashboardPage> {
   int _selectedIndex = 0;
   bool _showTamilExplanation = true;
 
+  late final List<Widget> _pages;
+
   @override
   void initState() {
     super.initState();
+    
+    _pages = [
+      _buildHomePage(),
+      const LibraryPage(),
+      _buildQuizPage(),
+      _buildProfilePage(),
+    ];
+    
     // Load daily kural after the first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<KuralBloc>().add(GetDailyKuralEvent());
@@ -29,44 +40,60 @@ class _HomeDashboardPageState extends State<HomeDashboardPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Header
-            _buildHeader(),
-            
-            // Scrollable Content
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.only(bottom: 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Weekly Goal Banner
-                    _buildWeeklyGoalBanner(),
-                    
-                    const SizedBox(height: 10),
-                    
-                    // Today's Kural Section
-                    _buildSectionTitle('இன்றைய குறள்', 'Picked based on your learning path.'),
-                    
-                    // Kural Card
-                    _buildTodayKuralCard(),
-                    
-                    const SizedBox(height: 32),
-                    
-                    // Smarter in 5 minutes
-                    _buildSectionTitle('Smarter in 5 minutes', 'Shorts help you learn something new every day.'),
-                    
-                    _buildShortsSection(),
-                  ],
-                ),
+      body: _pages[_selectedIndex],
+      bottomNavigationBar: _buildBottomNav(),
+    );
+  }
+
+  Widget _buildHomePage() {
+    return SafeArea(
+      child: Column(
+        children: [
+          // Header
+          _buildHeader(),
+          
+          // Scrollable Content
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.only(bottom: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Weekly Goal Banner
+                  _buildWeeklyGoalBanner(),
+                  
+                  const SizedBox(height: 10),
+                  
+                  // Today's Kural Section
+                  _buildSectionTitle('இன்றைய குறள்', 'Picked based on your learning path.'),
+                  
+                  // Kural Card
+                  _buildTodayKuralCard(),
+                  
+                  const SizedBox(height: 32),
+                  
+                  // Smarter in 5 minutes
+                  _buildSectionTitle('Smarter in 5 minutes', 'Shorts help you learn something new every day.'),
+                  
+                  _buildShortsSection(),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
-      bottomNavigationBar: _buildBottomNav(),
+    );
+  }
+
+  Widget _buildQuizPage() {
+    return const Center(
+      child: Text('Quiz Page - Coming Soon'),
+    );
+  }
+
+  Widget _buildProfilePage() {
+    return const Center(
+      child: Text('Profile Page - Coming Soon'),
     );
   }
 
