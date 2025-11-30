@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../kural/presentation/bloc/kural_bloc.dart';
 import '../../../kural/presentation/pages/daily_kural_page.dart';
 import '../../../library/presentation/pages/library_page.dart';
+import '../../../quiz/presentation/pages/quiz_page.dart';
 
 class HomeDashboardPage extends StatefulWidget {
   const HomeDashboardPage({super.key});
@@ -86,9 +87,7 @@ class _HomeDashboardPageState extends State<HomeDashboardPage> {
   }
 
   Widget _buildQuizPage() {
-    return const Center(
-      child: Text('Quiz Page - Coming Soon'),
-    );
+    return const QuizPage();
   }
 
   Widget _buildProfilePage() {
