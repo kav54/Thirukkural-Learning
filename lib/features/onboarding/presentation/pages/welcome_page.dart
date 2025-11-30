@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'age_selection_page.dart';
 
@@ -31,7 +30,7 @@ class WelcomePage extends StatelessWidget {
                   size: 100,
                   color: Colors.deepPurple,
                 ),
-              ).animate().scale(duration: 600.ms, curve: Curves.easeOutBack),
+              ),
               
               const SizedBox(height: 48),
               
@@ -45,9 +44,9 @@ class WelcomePage extends StatelessWidget {
                   color: Colors.black87,
                   height: 1.3,
                 ),
-              ).animate().fadeIn(delay: 300.ms).slideY(begin: 0.2, end: 0),
+              ),
               
-              const SizedBox(height: 16),
+              const SizedBox(height: 10),
               
               // Subtitle
               Text(
@@ -58,7 +57,7 @@ class WelcomePage extends StatelessWidget {
                   color: Colors.grey.shade600,
                   fontWeight: FontWeight.w500,
                 ),
-              ).animate().fadeIn(delay: 500.ms).slideY(begin: 0.2, end: 0),
+              ),
               
               const Spacer(),
               
@@ -90,7 +89,7 @@ class WelcomePage extends StatelessWidget {
                     ),
                   ),
                 ),
-              ).animate().fadeIn(delay: 800.ms).slideY(begin: 0.4, end: 0),
+              ),
               
               const SizedBox(height: 16),
             ],

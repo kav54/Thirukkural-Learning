@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:isar/isar.dart';
 import '../../../../injection_container.dart' as di;
@@ -139,7 +138,7 @@ class _LibraryPageState extends State<LibraryPage> {
               colors: [Color(0xFFEC4899), Color(0xFFDB2777)],
             ),
             () => _openTheme('Virtue'),
-          ).animate().fadeIn(delay: 100.ms),
+          ),
           const SizedBox(height: 16),
           _buildThemeCard(
             'பொருட்பால்',
@@ -150,7 +149,7 @@ class _LibraryPageState extends State<LibraryPage> {
               colors: [Color(0xFF3B82F6), Color(0xFF2563EB)],
             ),
             () => _openTheme('Wealth'),
-          ).animate().fadeIn(delay: 200.ms),
+          ),
           const SizedBox(height: 16),
           _buildThemeCard(
             'காமத்துப்பால்',
@@ -161,7 +160,7 @@ class _LibraryPageState extends State<LibraryPage> {
               colors: [Color(0xFFEAB308), Color(0xFFCA8A04)],
             ),
             () => _openTheme('Love'),
-          ).animate().fadeIn(delay: 300.ms),
+          ),
         ],
       ),
     );
@@ -245,7 +244,7 @@ class _LibraryPageState extends State<LibraryPage> {
               chapter['number'],
               chapter['nameTamil'],
               chapter['nameEnglish'],
-            ).animate(delay: (index * 50).ms).fadeIn().slideX();
+            );
           },
         );
       },
@@ -329,7 +328,7 @@ class _LibraryPageState extends State<LibraryPage> {
           itemCount: kurals.length,
           itemBuilder: (context, index) {
             final kural = kurals[index];
-            return _buildKuralItem(kural).animate(delay: (index * 50).ms).fadeIn();
+            return _buildKuralItem(kural);
           },
         );
       },

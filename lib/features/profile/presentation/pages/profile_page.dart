@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:isar/isar.dart';
 import '../../../../injection_container.dart' as di;
+import '../../../kural/data/models/kural_model.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -75,7 +75,7 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ],
       ),
-    ).animate().fadeIn();
+    );
   }
 
   Widget _buildProfileCard() {
@@ -150,7 +150,7 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ],
       ),
-    ).animate().fadeIn(delay: 100.ms).scale();
+    );
   }
 
   Widget _buildProfileStat(String emoji, String value, String label) {
@@ -270,7 +270,7 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ],
       ),
-    ).animate().fadeIn(delay: 200.ms);
+    );
   }
 
   Widget _buildStatCard(String label, String value, IconData icon, Color color) {
@@ -338,7 +338,7 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ],
       ),
-    ).animate().fadeIn(delay: 300.ms);
+    );
   }
 
   Widget _buildAchievementBadge(String emoji, String title, String status, bool isUnlocked) {
@@ -408,7 +408,7 @@ class _ProfilePageState extends State<ProfilePage> {
           _buildSettingItem(Icons.logout, 'Logout', () {}, isDestructive: true),
         ],
       ),
-    ).animate().fadeIn(delay: 400.ms);
+    );
   }
 
   Widget _buildSettingItem(IconData icon, String title, VoidCallback onTap, {bool isDestructive = false}) {

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../domain/usecases/quiz_generator.dart';
 import '../../../../injection_container.dart' as di;
@@ -65,7 +64,7 @@ class DailyChallengePage extends StatelessWidget {
             colors: [Color(0xFFF97316), Color(0xFFEA580C)],
           ),
           true, // Pulse effect
-        ).animate().fadeIn(delay: 100.ms).scale(),
+        ),
         
         _buildGameCard(
           context,
@@ -76,7 +75,7 @@ class DailyChallengePage extends StatelessWidget {
             colors: [Color(0xFF3B82F6), Color(0xFF2563EB)],
           ),
           false,
-        ).animate().fadeIn(delay: 200.ms).scale(),
+        ),
         
         _buildGameCard(
           context,
@@ -87,7 +86,7 @@ class DailyChallengePage extends StatelessWidget {
             colors: [Color(0xFF10B981), Color(0xFF059669)],
           ),
           false,
-        ).animate().fadeIn(delay: 300.ms).scale(),
+        ),
         
         _buildGameCard(
           context,
@@ -98,7 +97,7 @@ class DailyChallengePage extends StatelessWidget {
             colors: [Color(0xFFEC4899), Color(0xFFDB2777)],
           ),
           false,
-        ).animate().fadeIn(delay: 400.ms).scale(),
+        ),
       ],
     );
   }

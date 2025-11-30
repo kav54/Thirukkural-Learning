@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../features/home/presentation/pages/home_dashboard_page.dart';
@@ -50,14 +49,14 @@ class _AgeSelectionPageState extends State<AgeSelectionPage> {
                   fontWeight: FontWeight.bold,
                   color: Colors.black87,
                 ),
-              ).animate().fadeIn().slideX(),
+              ),
               Text(
                 'How old are you?',
                 style: GoogleFonts.quicksand(
                   fontSize: 18,
                   color: Colors.grey.shade600,
                 ),
-              ).animate().fadeIn(delay: 100.ms).slideX(),
+              ),
 
               const SizedBox(height: 24),
 
@@ -114,7 +113,7 @@ class _AgeSelectionPageState extends State<AgeSelectionPage> {
                     ),
                   );
                 }),
-              ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.2, end: 0),
+              ),
 
               const SizedBox(height: 32),
 
@@ -126,7 +125,7 @@ class _AgeSelectionPageState extends State<AgeSelectionPage> {
                   fontWeight: FontWeight.bold,
                   color: Colors.black87,
                 ),
-              ).animate().fadeIn(delay: 300.ms),
+              ),
 
               const SizedBox(height: 16),
 
@@ -159,7 +158,7 @@ class _AgeSelectionPageState extends State<AgeSelectionPage> {
                     ),
                   );
                 },
-              ).animate().fadeIn(delay: 400.ms).slideY(begin: 0.2, end: 0),
+              ),
 
               const SizedBox(height: 32),
 
@@ -178,7 +177,7 @@ class _AgeSelectionPageState extends State<AgeSelectionPage> {
                   ),
                   prefixIcon: const Icon(Icons.person_outline),
                 ),
-              ).animate().fadeIn(delay: 500.ms),
+              ),
 
               const SizedBox(height: 48),
 
@@ -219,7 +218,7 @@ class _AgeSelectionPageState extends State<AgeSelectionPage> {
                     ),
                   ),
                 ),
-              ).animate().fadeIn(delay: 600.ms).slideY(begin: 0.4, end: 0),
+              ),
             ],
           ),
         ),

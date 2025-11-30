@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../kural/presentation/bloc/kural_bloc.dart';
@@ -121,7 +120,7 @@ class _HomeDashboardPageState extends State<HomeDashboardPage> {
           ),
         ],
       ),
-    ).animate().fadeIn();
+    );
   }
 
   Widget _buildWeeklyGoalBanner() {
@@ -168,7 +167,7 @@ class _HomeDashboardPageState extends State<HomeDashboardPage> {
           Icon(Icons.chevron_right, color: Colors.grey.shade600),
         ],
       ),
-    ).animate().fadeIn(delay: 100.ms);
+    );
   }
 
   Widget _buildSectionTitle(String title, String subtitle) {
@@ -387,7 +386,7 @@ class _HomeDashboardPageState extends State<HomeDashboardPage> {
                 ),
               ],
             ),
-          ).animate().fadeIn(delay: 200.ms).scale(duration: 400.ms);
+          );
         }
         
         return const SizedBox.shrink();
@@ -448,7 +447,7 @@ class _HomeDashboardPageState extends State<HomeDashboardPage> {
           ),
         ],
       ),
-    ).animate().fadeIn(delay: 400.ms);
+    );
   }
 
   Widget _buildShortCard(String title, IconData icon, Gradient gradient, {bool isDark = false}) {

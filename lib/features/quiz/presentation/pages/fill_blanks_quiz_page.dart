@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../domain/entities/quiz.dart';
@@ -142,7 +141,7 @@ class _FillBlanksQuizView extends StatelessWidget {
           ),
         ),
       ),
-    ).animate().fadeIn();
+    );
   }
 
   Widget _buildQuestionCard(QuizQuestion question) {
@@ -189,7 +188,7 @@ class _FillBlanksQuizView extends StatelessWidget {
           ),
         ],
       ),
-    ).animate().fadeIn().scale();
+    );
   }
 
   Widget _buildOptions(BuildContext context, QuizQuestion question, QuizInProgress state) {
@@ -252,7 +251,7 @@ class _FillBlanksQuizView extends StatelessWidget {
               ],
             ),
           ),
-        ).animate().fadeIn(delay: (question.options.indexOf(option) * 100).ms);
+        );
       }).toList(),
     );
   }
@@ -329,7 +328,7 @@ class _FillBlanksQuizView extends StatelessWidget {
           ),
         ),
       ],
-    ).animate().fadeIn();
+    );
   }
 
   void _showExitDialog(BuildContext context) {
