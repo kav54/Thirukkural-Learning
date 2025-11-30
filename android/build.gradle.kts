@@ -22,3 +22,26 @@ subprojects {
 tasks.register<Delete>("clean") {
     delete(rootProject.layout.buildDirectory)
 }
+
+// Workaround for isar_flutter_libs namespace issue with AGP 8+
+subprojects {
+    if (project.name == "isar_flutter_libs") {
+        val configureNamespace = {
+            try {
+                project.extensions.configure<com.android.build.gradle.LibraryExtension> {
+                    namespace = "dev.isar.isar_flutter_libs"
+                }
+            } catch (e: Exception) {
+                // Ignore
+            }
+        }
+
+        if (project.state.executed) {
+            configureNamespace()
+        } else {
+            project.afterEvaluate {
+                configureNamespace()
+            }
+        }
+    }
+}
