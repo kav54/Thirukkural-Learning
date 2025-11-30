@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../features/home/presentation/pages/home_dashboard_page.dart';
+import '../../../../features/kural/presentation/bloc/kural_bloc.dart';
+import '../../../../injection_container.dart' as di;
 
 class AgeSelectionPage extends StatefulWidget {
   const AgeSelectionPage({super.key});
@@ -191,7 +194,10 @@ class _AgeSelectionPageState extends State<AgeSelectionPage> {
                           Navigator.pushAndRemoveUntil(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const HomeDashboardPage(),
+                              builder: (context) => BlocProvider(
+                                create: (context) => di.sl<KuralBloc>(),
+                                child: const HomeDashboardPage(),
+                              ),
                             ),
                             (route) => false,
                           );

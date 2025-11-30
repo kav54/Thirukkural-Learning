@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../../features/kural/presentation/pages/daily_kural_page.dart';
+import '../../../kural/presentation/bloc/kural_bloc.dart';
+import '../../../kural/presentation/pages/daily_kural_page.dart';
 
 class HomeDashboardPage extends StatefulWidget {
   const HomeDashboardPage({super.key});
@@ -12,295 +14,500 @@ class HomeDashboardPage extends StatefulWidget {
 
 class _HomeDashboardPageState extends State<HomeDashboardPage> {
   int _selectedIndex = 0;
+  bool _showTamilExplanation = true;
+
+  @override
+  void initState() {
+    super.initState();
+    // Load daily kural after the first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<KuralBloc>().add(GetDailyKuralEvent());
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: const Color(0xFFF8FAFC),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header Section
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      const CircleAvatar(
-                        radius: 24,
-                        backgroundColor: Color(0xFFE0E7FF),
-                        child: Icon(Icons.face, color: Color(0xFF4F46E5)),
-                      ),
-                      const SizedBox(width: 12),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Vanakkam, Priya!',
-                            style: GoogleFonts.quicksand(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
-                            ),
-                          ),
-                          Text(
-                            'Little Learner',
-                            style: GoogleFonts.quicksand(
-                              fontSize: 12,
-                              color: Colors.grey.shade600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFEF3C7),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: const Color(0xFFF59E0B).withOpacity(0.3)),
-                    ),
-                    child: Row(
-                      children: [
-                        const Text('🔥 5'),
-                        const SizedBox(width: 8),
-                        Container(
-                          width: 1,
-                          height: 12,
-                          color: Colors.grey.shade300,
-                        ),
-                        const SizedBox(width: 8),
-                        const Icon(Icons.star_rounded, size: 16, color: Color(0xFFF59E0B)),
-                        const Text(' 120'),
-                      ],
-                    ),
-                  ),
-                ],
-              ).animate().fadeIn().slideY(begin: -0.2, end: 0),
-
-              const SizedBox(height: 32),
-
-              // Kural of the Day Card (Hero)
-              Text(
-                'Kural of the Day',
-                style: GoogleFonts.catamaran(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+        child: Column(
+          children: [
+            // Header
+            _buildHeader(),
+            
+            // Scrollable Content
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.only(bottom: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Weekly Goal Banner
+                    _buildWeeklyGoalBanner(),
+                    
+                    const SizedBox(height: 10),
+                    
+                    // Today's Kural Section
+                    _buildSectionTitle('இன்றைய குறள்', 'Picked based on your learning path.'),
+                    
+                    // Kural Card
+                    _buildTodayKuralCard(),
+                    
+                    const SizedBox(height: 32),
+                    
+                    // Smarter in 5 minutes
+                    _buildSectionTitle('Smarter in 5 minutes', 'Shorts help you learn something new every day.'),
+                    
+                    _buildShortsSection(),
+                  ],
                 ),
               ),
-              const SizedBox(height: 16),
-              GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const DailyKuralPage()),
-                  );
-                },
-                child: Container(
-                  width: double.infinity,
-                  height: 200,
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF8B5CF6), Color(0xFFEC4899)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(24),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF8B5CF6).withOpacity(0.4),
-                        blurRadius: 12,
-                        offset: const Offset(0, 8),
-                      ),
-                    ],
-                  ),
-                  child: Stack(
-                    children: [
-                      Positioned(
-                        right: -20,
-                        bottom: -20,
-                        child: Icon(
-                          Icons.menu_book_rounded,
-                          size: 150,
-                          color: Colors.white.withOpacity(0.1),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(24.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Text(
-                                'Kural #234',
-                                style: GoogleFonts.quicksand(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ),
-                            const Spacer(),
-                            Text(
-                              'Learn Today\'s Wisdom',
-                              style: GoogleFonts.catamaran(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                                height: 1.2,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Row(
-                              children: [
-                                const Icon(Icons.play_circle_fill, color: Colors.white, size: 20),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'Start Learning',
-                                  style: GoogleFonts.quicksand(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ).animate().fadeIn(delay: 200.ms).scale(duration: 400.ms),
-
-              const SizedBox(height: 32),
-
-              // Quick Actions Grid
-              Text(
-                'Explore',
-                style: GoogleFonts.catamaran(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-              ),
-              const SizedBox(height: 16),
-              GridView.count(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                crossAxisCount: 2,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-                childAspectRatio: 1.5,
-                children: [
-                  _buildQuickActionCard(
-                    'Library',
-                    Icons.library_books_rounded,
-                    const Color(0xFF3B82F6),
-                    () {},
-                  ),
-                  _buildQuickActionCard(
-                    'Games',
-                    Icons.sports_esports_rounded,
-                    const Color(0xFF10B981),
-                    () {},
-                  ),
-                  _buildQuickActionCard(
-                    'Leaderboard',
-                    Icons.emoji_events_rounded,
-                    const Color(0xFFF59E0B),
-                    () {},
-                  ),
-                  _buildQuickActionCard(
-                    'Share',
-                    Icons.share_rounded,
-                    const Color(0xFFEC4899),
-                    () {},
-                  ),
-                ],
-              ).animate().fadeIn(delay: 400.ms).slideY(begin: 0.2, end: 0),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _selectedIndex,
-        onDestinationSelected: (index) => setState(() => _selectedIndex = index),
-        backgroundColor: Colors.white,
-        elevation: 2,
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home_rounded),
-            label: 'Home',
+      bottomNavigationBar: _buildBottomNav(),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      color: const Color(0xFFF8FAFC),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            'For You',
+            style: GoogleFonts.quicksand(
+              fontSize: 28,
+              fontWeight: FontWeight.w800,
+              color: const Color(0xFF0F172A),
+            ),
           ),
-          NavigationDestination(
-            icon: Icon(Icons.book_outlined),
-            selectedIcon: Icon(Icons.book_rounded),
-            label: 'Library',
+          Row(
+            children: [
+              Icon(Icons.notifications_outlined, size: 24, color: Colors.grey.shade700),
+              const SizedBox(width: 12),
+              Icon(Icons.settings_outlined, size: 24, color: Colors.grey.shade700),
+              const SizedBox(width: 12),
+              Icon(Icons.add, size: 24, color: Colors.grey.shade700),
+            ],
           ),
-          NavigationDestination(
-            icon: Icon(Icons.games_outlined),
-            selectedIcon: Icon(Icons.games_rounded),
-            label: 'Games',
+        ],
+      ),
+    ).animate().fadeIn();
+  }
+
+  Widget _buildWeeklyGoalBanner() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF1F5F9),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: const BoxDecoration(
+              color: Color(0xFFDBEAFE),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.flag, color: Color(0xFF2563EB), size: 20),
           ),
-          NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person_rounded),
-            label: 'Profile',
+          const SizedBox(width: 12),
+          Expanded(
+            child: RichText(
+              text: TextSpan(
+                style: GoogleFonts.quicksand(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFF334155),
+                ),
+                children: const [
+                  TextSpan(text: 'Your weekly goal: '),
+                  TextSpan(
+                    text: '0/3 days',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF0F172A),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Icon(Icons.chevron_right, color: Colors.grey.shade600),
+        ],
+      ),
+    ).animate().fadeIn(delay: 100.ms);
+  }
+
+  Widget _buildSectionTitle(String title, String subtitle) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: GoogleFonts.catamaran(
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFF1E293B),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            subtitle,
+            style: GoogleFonts.quicksand(
+              fontSize: 14,
+              color: const Color(0xFF64748B),
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildQuickActionCard(String title, IconData icon, Color color, VoidCallback onTap) {
+  Widget _buildTodayKuralCard() {
+    return BlocBuilder<KuralBloc, KuralState>(
+      builder: (context, state) {
+        if (state is KuralLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        
+        if (state is KuralError) {
+          return Center(child: Text(state.message));
+        }
+        
+        if (state is KuralLoaded) {
+          final kural = state.kural;
+          
+          return Container(
+            margin: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: const Color(0xFF0F172A),
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF0F172A).withOpacity(0.2),
+                  blurRadius: 30,
+                  offset: const Offset(0, 10),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header Row
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF59E0B),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        'KURAL #${kural.number}',
+                        style: GoogleFonts.quicksand(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w800,
+                          color: const Color(0xFF0F172A),
+                        ),
+                      ),
+                    ),
+                    const Icon(Icons.bookmark_border, color: Color(0xFFF59E0B)),
+                  ],
+                ),
+                
+                const SizedBox(height: 20),
+                
+                // Kural Text
+                Text(
+                  '${kural.line1Tamil}\n${kural.line2Tamil}',
+                  style: GoogleFonts.catamaran(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                    height: 1.6,
+                  ),
+                ),
+                
+                const SizedBox(height: 24),
+                
+                // Explanation Container
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    children: [
+                      // Toggle Header
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'EXPLANATION',
+                            style: GoogleFonts.quicksand(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: const Color(0xFF94A3B8),
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.all(2),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.3),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Row(
+                              children: [
+                                _buildLangButton('TAM', _showTamilExplanation, () {
+                                  setState(() => _showTamilExplanation = true);
+                                }),
+                                _buildLangButton('ENG', !_showTamilExplanation, () {
+                                  setState(() => _showTamilExplanation = false);
+                                }),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        _showTamilExplanation ? kural.meaningTamil : kural.meaningEnglish,
+                        style: GoogleFonts.quicksand(
+                          fontSize: 14,
+                          color: const Color(0xFFE2E8F0),
+                          height: 1.5,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                
+                const SizedBox(height: 16),
+                
+                // Real Life Example
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1E293B),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: const Color(0xFF334155)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.lightbulb_outline, color: Color(0xFF38BDF8), size: 16),
+                          const SizedBox(width: 6),
+                          Text(
+                            'Real Life Example',
+                            style: GoogleFonts.quicksand(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: const Color(0xFF38BDF8),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        'Just like \'A\' is the first letter you learn in school, God is the beginning of everything in this world!',
+                        style: GoogleFonts.quicksand(
+                          fontSize: 13,
+                          color: const Color(0xFFCBD5E1),
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                
+                const SizedBox(height: 20),
+                
+                // Action Row
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: () {},
+                      icon: const Icon(Icons.volume_up, size: 18),
+                      label: Text(
+                        'Listen',
+                        style: GoogleFonts.quicksand(fontWeight: FontWeight.w700),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: const Color(0xFF0F172A),
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(99),
+                        ),
+                      ),
+                    ),
+                    Icon(Icons.share, color: Colors.grey.shade400),
+                  ],
+                ),
+              ],
+            ),
+          ).animate().fadeIn(delay: 200.ms).scale(duration: 400.ms);
+        }
+        
+        return const SizedBox.shrink();
+      },
+    );
+  }
+
+  Widget _buildLangButton(String label, bool isActive, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.shade100,
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            ),
-          ],
+          color: isActive ? const Color(0xFFF59E0B) : Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, color: color, size: 28),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              title,
-              style: GoogleFonts.quicksand(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-                color: Colors.black87,
-              ),
-            ),
-          ],
+        child: Text(
+          label,
+          style: GoogleFonts.quicksand(
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            color: isActive ? const Color(0xFF0F172A) : const Color(0xFF94A3B8),
+          ),
         ),
       ),
+    );
+  }
+
+  Widget _buildShortsSection() {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Row(
+        children: [
+          _buildShortCard(
+            'Virtue of\nGiving',
+            Icons.menu_book,
+            const LinearGradient(
+              colors: [Color(0xFFA78BFA), Color(0xFFDDD6FE)],
+            ),
+          ),
+          const SizedBox(width: 12),
+          _buildShortCard(
+            'The Power\nof Words',
+            Icons.lightbulb_outline,
+            const LinearGradient(
+              colors: [Colors.white, Colors.white],
+            ),
+            isDark: true,
+          ),
+          const SizedBox(width: 12),
+          _buildShortCard(
+            'Mastering\nSelf Control',
+            Icons.psychology_outlined,
+            const LinearGradient(
+              colors: [Color(0xFF6EE7B7), Color(0xFFA7F3D0)],
+            ),
+          ),
+        ],
+      ),
+    ).animate().fadeIn(delay: 400.ms);
+  }
+
+  Widget _buildShortCard(String title, IconData icon, Gradient gradient, {bool isDark = false}) {
+    return Container(
+      width: 140,
+      height: 180,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: gradient,
+        borderRadius: BorderRadius.circular(16),
+        border: isDark ? Border.all(color: const Color(0xFFE2E8F0)) : null,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Stack(
+        children: [
+          Positioned(
+            top: 10,
+            right: 10,
+            child: Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: isDark 
+                    ? const Color(0xFFF1F5F9) 
+                    : Colors.white.withOpacity(0.2),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                icon,
+                size: 16,
+                color: isDark ? const Color(0xFF334155) : Colors.white,
+              ),
+            ),
+          ),
+          Align(
+            alignment: Alignment.bottomLeft,
+            child: Text(
+              title,
+              style: GoogleFonts.quicksand(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: isDark ? const Color(0xFF1E293B) : Colors.white,
+                height: 1.4,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBottomNav() {
+    return NavigationBar(
+      selectedIndex: _selectedIndex,
+      onDestinationSelected: (index) => setState(() => _selectedIndex = index),
+      backgroundColor: Colors.white,
+      elevation: 2,
+      destinations: const [
+        NavigationDestination(
+          icon: Icon(Icons.home_outlined),
+          selectedIcon: Icon(Icons.home_rounded),
+          label: 'For You',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.menu_book_outlined),
+          selectedIcon: Icon(Icons.menu_book_rounded),
+          label: 'Library',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.school_outlined),
+          selectedIcon: Icon(Icons.school_rounded),
+          label: 'Quiz',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.person_outline),
+          selectedIcon: Icon(Icons.person_rounded),
+          label: 'Profile',
+        ),
+      ],
     );
   }
 }

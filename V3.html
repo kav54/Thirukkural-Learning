@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thirukkural App - Home & Learning Flow</title>
+    <!-- Fonts: Quicksand (English), Catamaran (Tamil) -->
+    <link href="https://fonts.googleapis.com/css2?family=Catamaran:wght@400;700;800&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+    
+    <style>
+        :root {
+            --primary: #8B5CF6;
+            --primary-light: #F3E8FF;
+            --secondary: #EC4899;
+            --accent: #F59E0B;
+            --success: #10B981;
+            --surface: #FFFFFF;
+            --background: #F8FAFC;
+            --text-main: #1E293B;
+            --text-sub: #64748B;
+            
+            --radius-xl: 32px;
+            --radius-lg: 24px;
+            --radius-md: 16px;
+            --shadow-soft: 0 10px 40px -10px rgba(0,0,0,0.08);
+            --shadow-card: 0 4px 20px rgba(0,0,0,0.05);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            /* Unified Font Stack: Quicksand for English, Catamaran for Tamil */
+            font-family: 'Quicksand', 'Catamaran', sans-serif;
+            background-color: #EEF2FF;
+            display: flex;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Mobile Container */
+        .mobile-frame {
+            width: 100%;
+            max-width: 412px;
+            height: 100%;
+            background: var(--background);
+            position: relative;
+            overflow: hidden; 
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 50px rgba(0,0,0,0.1);
+        }
+
+        /* --- SCREEN CONTAINERS --- */
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            background: var(--background);
+            transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            transform: translateX(100%);
+            z-index: 10;
+        }
+
+        /* Base Tabs */
+        #view-home, #view-library, #view-main-quiz {
+            transform: translateX(0);
+        }
+        
+        .tab-screen {
+            display: none;
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            padding-bottom: 100px; /* Space for Bottom Nav */
+            background: var(--background);
+        }
+        .tab-screen.active-tab {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Layering Order */
+        #view-daily-challenge { z-index: 40; }
+
+        /* Active States */
+        #view-daily-challenge.active { transform: translateX(0); }
+
+
+        /* --- SHARED STYLES --- */
+        .icon-btn {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(8px);
+            border: none;
+            width: 40px; height: 40px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: white; cursor: pointer;
+        }
+        
+        .section-title {
+            font-family: 'Quicksand', sans-serif; /* Explicitly English title font */
+            font-size: 20px; font-weight: 700; color: var(--text-main); margin: 24px 20px 12px 20px;
+        }
+        .section-sub {
+            font-size: 14px; color: var(--text-sub); margin: 0 20px 16px 20px; line-height: 1.4;
+        }
+
+        /* --- HOME SCREEN (FOR YOU) STYLES --- */
+        .home-header {
+            padding: 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            background: var(--background);
+        }
+        .home-title { font-family: 'Quicksand', sans-serif; font-size: 28px; font-weight: 800; color: #0F172A; }
+        
+        .icon-action-row { display: flex; gap: 12px; }
+        .icon-action { font-size: 24px; color: var(--text-main); cursor: pointer; }
+
+        /* Weekly Goal Banner */
+        .goal-banner {
+            margin: 0 20px 10px 20px;
+            background: #F1F5F9;
+            border-radius: 16px;
+            padding: 16px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .goal-content { display: flex; align-items: center; gap: 12px; }
+        .goal-icon { 
+            width: 40px; height: 40px; background: #DBEAFE; border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; color: #2563EB; 
+        }
+        .goal-text { font-weight: 600; font-size: 14px; color: #334155; }
+        .goal-bold { font-weight: 800; color: #0F172A; }
+
+        /* Shorts / Horizontal Scroll */
+        .shorts-container {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding: 0 20px;
+            scrollbar-width: none;
+            margin-bottom: 20px;
+        }
+        .shorts-container::-webkit-scrollbar { display: none; }
+
+        .short-card {
+            min-width: 140px;
+            height: 180px;
+            border-radius: 16px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .short-card:active { transform: scale(0.95); }
+
+        .short-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.6));
+            z-index: 1;
+        }
+        .short-title {
+            color: white; font-size: 13px; font-weight: 700; z-index: 2; line-height: 1.4;
+        }
+        .short-icon-bg {
+            position: absolute; top: 10px; right: 10px; 
+            background: rgba(255,255,255,0.2); padding: 6px; border-radius: 50%;
+            color: white; font-size: 16px;
+        }
+
+        /* Today's Kural (Inraiya Kural) Card */
+        .kural-featured-card {
+            margin: 0 20px 20px 20px;
+            background: #0F172A; /* Dark background from reference */
+            border-radius: 24px;
+            position: relative;
+            overflow: hidden;
+            padding: 24px;
+            color: white;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.2);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .kural-header-row {
+            display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;
+        }
+        .kural-number-badge {
+            background: #F59E0B; color: #0F172A; padding: 4px 10px; border-radius: 20px;
+            font-weight: 800; font-size: 12px; text-transform: uppercase;
+        }
+        
+        .kural-main-text {
+            /* Uses Catamaran via body inheritance, but we can specify weight */
+            font-weight: 700; font-size: 20px; 
+            color: white; line-height: 1.6; margin-bottom: 24px; white-space: pre-line;
+        }
+
+        /* Explanation Section */
+        .exp-container {
+            background: rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .exp-header {
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;
+        }
+        .exp-label { font-size: 12px; font-weight: 700; color: #94A3B8; text-transform: uppercase; }
+        
+        .lang-toggle {
+            display: flex; background: rgba(0,0,0,0.3); border-radius: 20px; padding: 2px;
+        }
+        .lang-btn {
+            padding: 4px 12px; border-radius: 16px; font-size: 11px; font-weight: 700; color: #94A3B8; cursor: pointer;
+        }
+        .lang-btn.active { background: #F59E0B; color: #0F172A; }
+
+        .exp-text { font-size: 14px; line-height: 1.5; color: #E2E8F0; min-height: 42px; }
+
+        /* Real Life Example */
+        .real-life-box {
+            background: #1E293B; border-radius: 16px; padding: 16px; border: 1px solid #334155;
+        }
+        .real-life-title { font-size: 12px; font-weight: 700; color: #38BDF8; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+        .real-life-content { font-size: 13px; color: #CBD5E1; font-style: italic; }
+
+        .action-row {
+            display: flex; justify-content: space-between; align-items: center; margin-top: 20px;
+        }
+        .listen-btn {
+            display: flex; align-items: center; gap: 8px; 
+            background: white; color: #0F172A; padding: 10px 20px; border-radius: 99px;
+            font-weight: 700; font-size: 14px; border: none; cursor: pointer;
+        }
+
+
+        /* --- LIBRARY STYLES --- */
+        .lib-nav-header {
+            padding: 16px 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 20; background: var(--background);
+            transition: all 0.2s;
+        }
+        .search-bar-full {
+            flex: 1; background: white; border-radius: 99px; padding: 10px 16px;
+            display: flex; align-items: center; gap: 10px; color: var(--text-sub);
+            border: 1px solid #E2E8F0; margin-right: 12px;
+        }
+        .fav-btn {
+            width: 44px; height: 44px; border-radius: 50%; background: white;
+            border: 1px solid #E2E8F0; color: #EC4899; display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+        }
+        .lib-view { display: none; animation: fadeIn 0.3s ease; }
+        .lib-view.active-view { display: block; }
+        
+        .theme-card {
+            margin: 0 20px 16px 20px; padding: 24px; border-radius: 24px; color: white;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1); cursor: pointer;
+            transition: transform 0.2s; position: relative; overflow: hidden;
+        }
+        .theme-card:active { transform: scale(0.98); }
+        .theme-card::after {
+            content: ''; position: absolute; right: -20px; bottom: -20px;
+            width: 100px; height: 100px; border-radius: 50%; background: rgba(255,255,255,0.1);
+        }
+
+        .chapter-list-item {
+            background: white; border-radius: 16px; padding: 16px; margin: 0 20px 12px 20px;
+            display: flex; align-items: center; gap: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03); border: 1px solid transparent;
+            transition: all 0.2s; cursor: pointer;
+        }
+        .chapter-list-item:active { transform: scale(0.98); background: var(--primary-light); }
+        /* Catamaran is now default Tamil font, so we just set weight/size */
+        .chapter-num { font-size: 18px; font-weight: 700; color: var(--primary); min-width: 24px; }
+        .chapter-name-ta { font-weight: 700; font-size: 16px; color: var(--text-main); margin-bottom: 2px; }
+        .chapter-name-en { font-size: 13px; color: var(--text-sub); }
+
+        .kural-list-item {
+            background: white; border-radius: 12px; padding: 16px; margin: 0 20px 12px 20px;
+            border-left: 4px solid var(--accent); box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .kural-li-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 12px; color: var(--text-sub); font-weight: 700; }
+        .kural-li-text { font-size: 15px; color: var(--text-main); line-height: 1.5; white-space: pre-line; }
+        
+        .kural-fav-btn {
+            background: none; border: none; padding: 4px; cursor: pointer;
+            color: #CBD5E1; transition: transform 0.2s, color 0.2s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .kural-fav-btn.active { color: #EC4899; }
+        .kural-fav-btn:active { transform: scale(0.9); }
+
+        .header-dynamic-title {
+            font-size: 18px; font-weight: 700; color: var(--text-main);
+            flex: 1; text-align: center; text-overflow: ellipsis; white-space: nowrap; overflow: hidden;
+        }
+
+        /* --- BOTTOM NAV --- */
+        .bottom-nav { position: absolute; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 12px 16px 24px; border-top: 1px solid #E2E8F0; z-index: 50; }
+        .nav-item { background: none; border: none; display: flex; flex-direction: column; align-items: center; gap: 4px; color: #94A3B8; font-size: 11px; font-weight: 600; cursor: pointer; }
+        .nav-item.active { color: var(--primary); }
+        .nav-item.active span { font-variation-settings: 'FILL' 1; }
+
+        /* Quiz Banner & Grids */
+        .quiz-banner { margin: 0 20px 24px 20px; background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%); border-radius: 20px; padding: 20px; color: white; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow-card); cursor: pointer; }
+        .games-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 20px; }
+        .game-card { background: white; border-radius: 20px; padding: 16px; display: flex; flex-direction: column; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid rgba(255,255,255,0.2); }
+        .pulse-effect { animation: pulse 2s infinite; }
+        .hero-cta { width: 100%; background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; border: none; padding: 14px; border-radius: 16px; font-weight: 700; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); transition: transform 0.2s; }
+        .sub-screen-header { padding: 16px 20px; background: var(--surface); display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 10px rgba(0,0,0,0.03); flex-shrink: 0; }
+        .chapter-list { display: flex; flex-direction: column; gap: 16px; padding: 0 20px; }
+        .chapter-card { background: white; border-radius: 16px; padding: 16px; display: flex; align-items: center; gap: 16px; box-shadow: var(--shadow-card); border: 1px solid #F1F5F9; transition: transform 0.2s; }
+        .chapter-icon { width: 50px; height: 50px; background: #F3E8FF; color: var(--primary); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px; flex-shrink: 0; }
+        .chapter-info { flex: 1; }
+        .chapter-title { font-weight: 700; color: var(--text-main); font-size: 15px; margin-bottom: 4px; }
+        .chapter-sub { font-size: 12px; color: var(--text-sub); }
+        .chapter-status { text-align: right; }
+        .stars-mini { font-size: 10px; letter-spacing: 1px; margin-bottom: 4px; }
+        .btn-start-mini { background: var(--primary); color: white; border: none; padding: 6px 12px; border-radius: 99px; font-size: 11px; font-weight: 700; cursor: pointer; }
+
+        @keyframes bounce { 0%, 20%, 50%, 80%, 100% {transform: translateY(0);} 40% {transform: translateY(-5px);} 60% {transform: translateY(-3px);} }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(139, 92, 246, 0); } 100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    </style>
+</head>
+<body>
+
+<div class="mobile-frame">
+
+    <!-- ==================== VIEW 0: FOR YOU (HOME SCREEN) ==================== -->
+    <div id="view-home" class="tab-screen active-tab">
+        
+        <!-- Header -->
+        <div class="home-header">
+            <h1 class="home-title">For You</h1>
+            <div class="icon-action-row">
+                <span class="material-symbols-rounded icon-action">notifications</span>
+                <span class="material-symbols-rounded icon-action">settings</span>
+                <span class="material-symbols-rounded icon-action">add</span>
+            </div>
+        </div>
+
+        <div style="flex: 1; overflow-y: auto; padding-bottom: 20px;">
+            <!-- Weekly Goal Banner -->
+            <div class="goal-banner">
+                <div class="goal-content">
+                    <div class="goal-icon">
+                        <span class="material-symbols-rounded">flag</span>
+                    </div>
+                    <span class="goal-text">Your weekly goal: <span class="goal-bold">0/3 days</span></span>
+                </div>
+                <span class="material-symbols-rounded" style="color: #64748B;">chevron_right</span>
+            </div>
+
+            <!-- Today's Kural (Inraiya Kural) - Featured Section -->
+            <!-- Section title in Catamaran (via body stack) since it's Tamil/Eng mix -->
+            <h2 class="section-title">இன்றைய குறள்</h2>
+            <p class="section-sub">Picked based on your learning path.</p>
+
+            <div class="kural-featured-card">
+                <div class="kural-header-row">
+                    <span class="kural-number-badge" id="home-kural-num">KURAL #1</span>
+                    <span class="material-symbols-rounded" style="color: #F59E0B;">bookmark_border</span>
+                </div>
+
+                <div class="kural-main-text" id="home-kural-text">
+                    அகர முதல எழுத்தெல்லாம் ஆதி<br>
+                    பகவன் முதற்றே உலகு
+                </div>
+
+                <!-- Explanation Toggle -->
+                <div class="exp-container">
+                    <div class="exp-header">
+                        <span class="exp-label">Explanation</span>
+                        <div class="lang-toggle">
+                            <div class="lang-btn active" onclick="toggleHomeExp('tam')" id="btn-tam">TAM</div>
+                            <div class="lang-btn" onclick="toggleHomeExp('eng')" id="btn-eng">ENG</div>
+                        </div>
+                    </div>
+                    <div class="exp-text" id="home-kural-exp">
+                        எழுத்துக்கள் எல்லாம் அகரத்தை அடிப்படையாக கொண்டிருக்கின்றன. அதுபோல உலகம் கடவுளை அடிப்படையாக கொண்டிருக்கிறது.
+                    </div>
+                </div>
+
+                <!-- Real Life Example for Kids -->
+                <div class="real-life-box">
+                    <div class="real-life-title">
+                        <span class="material-symbols-rounded" style="font-size: 16px;">emoji_objects</span>
+                        Real Life Example
+                    </div>
+                    <div class="real-life-content" id="home-kural-real">
+                        "Just like 'A' is the first letter you learn in school, God is the beginning of everything in this world!"
+                    </div>
+                </div>
+
+                <div class="action-row">
+                    <button class="listen-btn" onclick="alert('Playing Audio...')">
+                        <span class="material-symbols-rounded">volume_up</span> Listen
+                    </button>
+                    <span class="material-symbols-rounded" style="color: #94A3B8; cursor: pointer;">share</span>
+                </div>
+            </div>
+
+
+            <!-- Smarter in 5 minutes (Shorts) - Moved to End -->
+            <h2 class="section-title">Smarter in 5 minutes</h2>
+            <p class="section-sub">Shorts help you learn something new every day.</p>
+            
+            <div class="shorts-container">
+                <!-- Short 1 -->
+                <div class="short-card" style="background: linear-gradient(135deg, #A78BFA 0%, #DDD6FE 100%);">
+                    <span class="material-symbols-rounded short-icon-bg">menu_book</span>
+                    <div class="short-title">Virtue of<br>Giving</div>
+                </div>
+                <!-- Short 2 -->
+                <div class="short-card" style="background: white; border: 1px solid #E2E8F0;">
+                    <span class="material-symbols-rounded short-icon-bg" style="background: #F1F5F9; color: #334155;">lightbulb</span>
+                    <div class="short-title" style="color: #1E293B;">The Power<br>of Words</div>
+                </div>
+                <!-- Short 3 -->
+                <div class="short-card" style="background: linear-gradient(135deg, #6EE7B7 0%, #A7F3D0 100%);">
+                    <span class="material-symbols-rounded short-icon-bg">psychology</span>
+                    <div class="short-title">Mastering<br>Self Control</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- ==================== VIEW 1: LIBRARY (HIERARCHICAL FLOW) ==================== -->
+    <div id="view-library" class="tab-screen">
+        <div class="lib-nav-header" id="lib-header-root">
+            <div class="search-bar-full">
+                <span class="material-symbols-rounded">search</span>
+                <span>Search...</span>
+            </div>
+            <button class="fav-btn">
+                <span class="material-symbols-rounded" style="font-variation-settings: 'FILL' 1;">favorite</span>
+            </button>
+        </div>
+
+        <div class="lib-nav-header" id="lib-header-deep" style="display: none;">
+            <button class="icon-btn" style="color: var(--text-main); margin-right: 10px;" onclick="goLibraryBack()">
+                <span class="material-symbols-rounded">arrow_back</span>
+            </button>
+            <div class="header-dynamic-title" id="lib-title">Title</div>
+            <div style="width: 40px;"></div>
+        </div>
+
+        <!-- LEVEL 1: ROOT (THEMES) -->
+        <div id="lib-root" class="lib-view active-view">
+            <h2 class="section-title">Library</h2>
+            <div class="theme-card" onclick="openTheme('Virtue')" style="background: linear-gradient(135deg, #EC4899 0%, #DB2777 100%);">
+                <div>
+                    <div class="theme-title" style="font-family: 'Catamaran'; font-weight: 700; font-size: 22px;">அறத்துப்பால்</div>
+                    <div class="theme-sub" style="font-size: 14px; opacity: 0.9;">Virtue • 38 Chapters</div>
+                </div>
+                <span class="material-symbols-rounded" style="font-size: 36px; opacity: 0.5;">spa</span>
+            </div>
+            <div class="theme-card" onclick="openTheme('Wealth')" style="background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);">
+                <div>
+                    <div class="theme-title" style="font-family: 'Catamaran'; font-weight: 700; font-size: 22px;">பொருட்பால்</div>
+                    <div class="theme-sub" style="font-size: 14px; opacity: 0.9;">Wealth • 70 Chapters</div>
+                </div>
+                <span class="material-symbols-rounded" style="font-size: 36px; opacity: 0.5;">paid</span>
+            </div>
+            <div class="theme-card" onclick="openTheme('Love')" style="background: linear-gradient(135deg, #EAB308 0%, #CA8A04 100%);">
+                <div>
+                    <div class="theme-title" style="font-family: 'Catamaran'; font-weight: 700; font-size: 22px;">காமத்துப்பால்</div>
+                    <div class="theme-sub" style="font-size: 14px; opacity: 0.9;">Love • 25 Chapters</div>
+                </div>
+                <span class="material-symbols-rounded" style="font-size: 36px; opacity: 0.5;">favorite</span>
+            </div>
+        </div>
+
+        <!-- LEVEL 2: CHAPTERS LIST -->
+        <div id="lib-chapters" class="lib-view">
+            <div class="chapter-list-section" id="chapter-list-container">
+                <!-- Chapters inserted by JS -->
+            </div>
+        </div>
+
+        <!-- LEVEL 3: KURALS LIST -->
+        <div id="lib-kurals" class="lib-view">
+            <div id="kural-list-container">
+                <!-- Kurals inserted by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== VIEW 2: QUIZ TAB ==================== -->
+    <div id="view-main-quiz" class="tab-screen">
+        <div class="home-top-nav" style="background: var(--surface);">
+            <h2 class="section-title" style="margin: 0;">Quiz Zone</h2>
+        </div>
+        <div style="padding-top: 60px;">
+            <div class="quiz-banner" onclick="toggleScreen('view-daily-challenge', true)">
+                <div>
+                    <h3 style="font-size: 18px; font-weight: 700;">Daily Challenge</h3>
+                    <p style="font-size: 13px; opacity: 0.9;">Keep your streak alive! 🔥</p>
+                </div>
+                <div style="background: rgba(255,255,255,0.2); padding: 8px; border-radius: 12px;">
+                    <span class="material-symbols-rounded" style="font-size: 28px;">stadia_controller</span>
+                </div>
+            </div>
+            <h3 class="section-title" style="margin-top: 0;">Chapter Quizzes</h3>
+            <div class="chapter-list">
+                <div class="chapter-card">
+                    <div class="chapter-icon">1</div>
+                    <div class="chapter-info">
+                        <div class="chapter-title">கடவுள் வாழ்த்து</div>
+                        <div class="chapter-sub">The Praise of God</div>
+                    </div>
+                    <div class="chapter-status">
+                        <div class="stars-mini">⭐⭐⭐</div>
+                        <button class="btn-start-mini">Replay</button>
+                    </div>
+                </div>
+                <!-- More quizzes static for demo -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== OVERLAYS ==================== -->
+    
+    <!-- Daily Challenge Overlay -->
+    <div id="view-daily-challenge" class="screen">
+        <div class="sub-screen-header">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <button class="icon-btn" style="color:var(--text-main); background:none;" onclick="toggleScreen('view-daily-challenge', false)">
+                    <span class="material-symbols-rounded">arrow_back</span>
+                </button>
+                <span style="font-family:'Catamaran'; font-weight:700; font-size:20px;">🎯 Daily Challenge</span>
+            </div>
+        </div>
+        <div class="games-grid">
+             <div class="game-card pulse-effect" style="background: linear-gradient(135deg, #F97316 0%, #EA580C 100%);">
+                <span class="material-symbols-rounded" style="color: white; font-size: 32px; margin-bottom: 10px;">extension</span>
+                <h3 style="color: white; margin-bottom: 5px;">Word Puzzle</h3>
+                <span style="color: rgba(255,255,255,0.8); font-size: 12px;">~2 mins</span>
+            </div>
+             <div class="game-card" style="background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);">
+                <span class="material-symbols-rounded" style="color: white; font-size: 32px; margin-bottom: 10px;">edit_square</span>
+                <h3 style="color: white; margin-bottom: 5px;">Fill Blanks</h3>
+                <span style="color: rgba(255,255,255,0.8); font-size: 12px;">~1 mins</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== BOTTOM NAV ==================== -->
+    <div class="bottom-nav">
+        <button class="nav-item active" onclick="switchTab('view-home', this)">
+            <span class="material-symbols-rounded">home</span>
+            For You
+        </button>
+        <button class="nav-item" onclick="switchTab('view-library', this)">
+            <span class="material-symbols-rounded">menu_book</span>
+            Library
+        </button>
+        <button class="nav-item" onclick="switchTab('view-main-quiz', this)">
+            <span class="material-symbols-rounded">school</span>
+            Quiz
+        </button>
+        <button class="nav-item">
+            <span class="material-symbols-rounded">person</span>
+            Profile
+        </button>
+    </div>
+
+</div>
+
+<script>
+    // --- DATA LOADED FROM JSON (Sample Set for Demo) ---
+    const rawData = [
+      { "id": 1, "pal_english": "Virtue", "pal_tamil": "அறத்துப்பால்", "adhikarm_no": 1, "adhikarm_tamil": "கடவுள் வாழ்த்து", "adhikarm_english": "The Praise of God", "kural_no": 1, "kural_tamil1": "அகர முதல எழுத்தெல்லாம் ஆதி\nபகவன் முதற்றே உலகு", "kural_thanglish1": "Akara Mudhala Ezhuththellaam Aadhi\nPakavan Mudhatre Ulaku", "kuralvilakam_english": "As the letter A is the first of all letters so the eternal God is first in the world", "kuralvilakam_tamil": "எழுத்துக்கள் எல்லாம் அகரத்தை அடிப்படையாக கொண்டிருக்கின்றன. அதுபோல உலகம் கடவுளை அடிப்படையாக கொண்டிருக்கிறது." },
+      { "id": 2, "pal_english": "Virtue", "pal_tamil": "அறத்துப்பால்", "adhikarm_no": 1, "adhikarm_tamil": "கடவுள் வாழ்த்து", "adhikarm_english": "The Praise of God", "kural_no": 2, "kural_tamil1": "கற்றதனால் ஆய பயனென்கொல் வாலறிவன்\nநற்றாள் தொழாஅர் எனின்", "kural_thanglish1": "Katradhanaal Aaya Payanenkol Vaalarivan\nNatraal Thozhaaar Enin", "kuralvilakam_english": "What Profit have those derived from learning who worship not the good feet of Him who is possessed of pure knowledge?", "kuralvilakam_tamil": "தூய அறிவு வடிவாக விளங்கும் இறைவனுடைய நல்ல திருவடிகளை தொழாமல் இருப்பாரானால் அவர் கற்ற கல்வியினால் ஆகிய பயன் என்ன?" },
+      { "id": 3, "pal_english": "Virtue", "pal_tamil": "அறத்துப்பால்", "adhikarm_no": 1, "adhikarm_tamil": "கடவுள் வாழ்த்து", "adhikarm_english": "The Praise of God", "kural_no": 3, "kural_tamil1": "மலர்மிசை ஏகினான் மாணடி சேர்ந்தார்\nநிலமிசை நீடுவாழ் வார்", "kural_thanglish1": "Malarmisai Ekinaan Maanati Serndhaar\nNilamisai Neetuvaazh Vaar", "kuralvilakam_english": "They who are united to the glorious feet of Him who passes swiftly over the flower of the mind shall flourish long above all worlds", "kuralvilakam_tamil": "அன்பரின் அகமாகிய மலரில் வீற்றிருக்கும் கடவுளின் சிறந்த திருவடிகளை பொருந்தி நினைக்கின்றவர் இன்ப உலகில் நிலைத்து வாழ்வார்" },
+      
+      // Sample from Wealth
+      { "id": 391, "pal_english": "Wealth", "pal_tamil": "பொருட்பால்", "adhikarm_no": 40, "adhikarm_tamil": "கல்வி", "adhikarm_english": "Learning", "kural_no": 391, "kural_bamini1": "கற்க கசடறக் கற்பவை கற்றபின்", "kural_bamini2": "நிற்க அதற்குத் தக.", "kural_tamil1": "கற்க கசடறக் கற்பவை கற்றபின்\nநிற்க அதற்குத் தக", "kural_thanglish1": "Karka Kasatarak Karpavai Katrapin\nNirka Adharkuth Thaka", "kuralvilakam_english": "Let a man learn thoroughly whatever he may learn and let his conduct be worthy of his learning", "kuralvilakam_tamil": "கல்வி கற்க நல்ல நூல்களைக் குற்றமறக் கற்க வேண்டும் அவ்வாறு கற்ற பிறகு கற்ற கல்விக்கு தக்கவாறு நெறியில் நிற்க வேண்டும்." },
+      
+      // Sample from Love
+      { "id": 1081, "pal_english": "Love", "pal_thanglish": "Inpattuppal", "pal_tamil": "இன்பத்துப்பால்", "adhikarm_no": 109, "adhikarm_tamil": "தகையணங்குறுத்தல்", "adhikarm_english": "The Pre-marital love", "kural_no": 1081, "kural_tamil1": "அணங்குகொல் ஆய்மயில் கொல்லோ கனங்குழை\nமாதர்கொல் மாலும் என் நெஞ்சு", "kural_thanglish1": "Anangukol Aaimayil Kollo Kananguzhai\nMaadharkol Maalum En Nenju", "kuralvilakam_english": "Is this jewelled female a celestial a choice peahen or a human being ? My mind is perplexed", "kural_tamil1": "தெய்வப் பெண்ணோ! மயிலோ கனமான குழை அணிந்த மனிதப் பெண்ணோ என் நெஞ்சம் மயங்குகின்றதே." }
+    ];
+
+    // Initialize Daily Kural
+    // For demo purposes, we use Kural #1 (index 0)
+    // In real app, use a date-based index or random
+    const currentKural = rawData[0]; 
+
+    function renderDailyKural() {
+        document.getElementById('home-kural-num').innerText = `KURAL #${currentKural.kural_no}`;
+        document.getElementById('home-kural-text').innerText = currentKural.kural_tamil1;
+        // Default to Tamil explanation
+        document.getElementById('home-kural-exp').innerText = currentKural.kuralvilakam_tamil;
+        
+        // Simple logic for "Real Life Example" based on kural ID for demo
+        // Ideally this would be in the JSON dataset
+        let realLifeEx = "";
+        if(currentKural.kural_no === 1) {
+            realLifeEx = "Just like 'A' is the first letter you learn in school, God is the beginning of everything in this world!";
+        } else {
+            realLifeEx = "Think of this like planting a seed. Good actions are the water that makes it grow into a big strong tree!";
+        }
+        document.getElementById('home-kural-real').innerText = realLifeEx;
+    }
+
+    // Explanation Toggle Logic
+    function toggleHomeExp(lang) {
+        const btnTam = document.getElementById('btn-tam');
+        const btnEng = document.getElementById('btn-eng');
+        const expText = document.getElementById('home-kural-exp');
+
+        if (lang === 'tam') {
+            btnTam.classList.add('active');
+            btnEng.classList.remove('active');
+            expText.innerText = currentKural.kuralvilakam_tamil;
+        } else {
+            btnEng.classList.add('active');
+            btnTam.classList.remove('active');
+            expText.innerText = currentKural.kuralvilakam_english;
+        }
+    }
+
+    // Initialize
+    renderDailyKural();
+
+
+    // --- NAVIGATION LOGIC ---
+    function toggleScreen(screenId, show) {
+        const screen = document.getElementById(screenId);
+        if (show) screen.classList.add('active');
+        else screen.classList.remove('active');
+    }
+
+    function switchTab(screenId, btn) {
+        const tabs = document.querySelectorAll('.tab-screen');
+        tabs.forEach(t => t.classList.remove('active-tab'));
+        const target = document.getElementById(screenId);
+        if(target) target.classList.add('active-tab');
+        const navItems = document.querySelectorAll('.nav-item');
+        navItems.forEach(n => n.classList.remove('active'));
+        btn.classList.add('active');
+    }
+
+    // --- LIBRARY LOGIC ---
+    let libLevel = 0; 
+    const headerRoot = document.getElementById('lib-header-root');
+    const headerDeep = document.getElementById('lib-header-deep');
+    const libTitle = document.getElementById('lib-title');
+    let currentTheme = "";
+
+    function showLibView(viewId) {
+        document.querySelectorAll('.lib-view').forEach(v => v.classList.remove('active-view'));
+        document.getElementById(viewId).classList.add('active-view');
+        
+        if (viewId === 'lib-root') {
+            headerRoot.style.display = 'flex';
+            headerDeep.style.display = 'none';
+            libLevel = 0;
+        } else {
+            headerRoot.style.display = 'none';
+            headerDeep.style.display = 'flex';
+        }
+    }
+
+    function openTheme(themeId) {
+        libLevel = 1;
+        currentTheme = themeId;
+        const themeKurals = rawData.filter(k => k.pal_english === themeId);
+        const chapters = [...new Set(themeKurals.map(k => JSON.stringify({no: k.adhikarm_no, tam: k.adhikarm_tamil, eng: k.adhikarm_english})))].map(JSON.parse);
+        
+        const container = document.getElementById('chapter-list-container');
+        container.innerHTML = `<div class="list-header-text" style="margin: 0 20px 12px 20px; font-weight: 700; color: #1E293B;">Chapters in ${themeId}</div>`;
+        
+        chapters.forEach(chap => {
+            const div = document.createElement('div');
+            div.className = 'chapter-list-item';
+            div.onclick = () => openChapter(chap.no, chap.tam, chap.eng);
+            div.innerHTML = `
+                <div class="chapter-num">${chap.no}</div>
+                <div class="chapter-content">
+                    <div class="chapter-name-ta">${chap.tam}</div>
+                    <div class="chapter-name-en">${chap.eng}</div>
+                </div>
+                <span class="material-symbols-rounded" style="color: #CBD5E1;">chevron_right</span>
+            `;
+            container.appendChild(div);
+        });
+
+        libTitle.innerText = themeId;
+        showLibView('lib-chapters');
+    }
+
+    function openChapter(chapterId, tamTitle, engTitle) {
+        libLevel = 2;
+        const kurals = rawData.filter(k => k.adhikarm_no === chapterId);
+        const container = document.getElementById('kural-list-container');
+        container.innerHTML = `<div class="list-header-text" style="padding: 0 20px; font-weight: 700; color: #1E293B; margin-bottom: 12px;">${tamTitle}</div>`;
+
+        kurals.forEach(k => {
+            const div = document.createElement('div');
+            div.className = 'kural-list-item';
+            div.innerHTML = `
+                <div class="kural-li-header">
+                    <span>Kural #${k.kural_no}</span>
+                    <button class="kural-fav-btn" onclick="toggleKuralFav(this)">
+                        <span class="material-symbols-rounded">favorite_border</span>
+                    </button>
+                </div>
+                <div class="kural-li-text">${k.kural_tamil1}</div>
+                <div style="font-size:12px; color:#64748B; margin-top:8px; font-style:italic;">${k.kuralvilakam_english}</div>
+            `;
+            container.appendChild(div);
+        });
+
+        libTitle.innerText = engTitle;
+        showLibView('lib-kurals');
+    }
+
+    function goLibraryBack() {
+        if (libLevel === 2) {
+            libLevel = 1;
+            libTitle.innerText = currentTheme; 
+            showLibView('lib-chapters');
+        } else if (libLevel === 1) {
+            libLevel = 0;
+            showLibView('lib-root');
+        }
+    }
+
+    function toggleKuralFav(btn) {
+        btn.classList.toggle('active');
+        const icon = btn.querySelector('.material-symbols-rounded');
+        if (btn.classList.contains('active')) {
+            icon.innerText = 'favorite';
+            icon.style.fontVariationSettings = "'FILL' 1";
+            btn.style.transform = 'scale(1.2)';
+            setTimeout(() => { btn.style.transform = 'scale(1)'; }, 200);
+        } else {
+            icon.innerText = 'favorite_border';
+            icon.style.fontVariationSettings = "'FILL' 0";
+        }
+    }
+</script>
+
+</body>
+</html>
