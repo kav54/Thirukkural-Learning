@@ -402,15 +402,38 @@ class _LibraryPageState extends State<LibraryPage> {
   Future<List<Map<String, dynamic>>> _getChapters(String theme) async {
     final kurals = await _isar.kuralModels.where().findAll();
     
-    // Group by chapter
+    // Define chapter ranges for each theme
+    int startChapter, endChapter;
+    switch (theme) {
+      case 'Virtue':
+        startChapter = 1;
+        endChapter = 38;
+        break;
+      case 'Wealth':
+        startChapter = 39;
+        endChapter = 108;
+        break;
+      case 'Love':
+        startChapter = 109;
+        endChapter = 133;
+        break;
+      default:
+        startChapter = 1;
+        endChapter = 133;
+    }
+    
+    // Group by chapter and filter by theme
     final chapterMap = <int, Map<String, dynamic>>{};
     for (var kural in kurals) {
-      if (!chapterMap.containsKey(kural.chapterNumber)) {
-        chapterMap[kural.chapterNumber] = {
-          'number': kural.chapterNumber,
-          'nameTamil': kural.chapterName,
-          'nameEnglish': 'Chapter ${kural.chapterNumber}', // You can enhance this
-        };
+      // Only include chapters within the theme's range
+      if (kural.chapterNumber >= startChapter && kural.chapterNumber <= endChapter) {
+        if (!chapterMap.containsKey(kural.chapterNumber)) {
+          chapterMap[kural.chapterNumber] = {
+            'number': kural.chapterNumber,
+            'nameTamil': kural.chapterName,
+            'nameEnglish': 'Chapter ${kural.chapterNumber}',
+          };
+        }
       }
     }
     

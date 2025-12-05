@@ -6,6 +6,7 @@ import '../../../kural/presentation/pages/daily_kural_page.dart';
 import '../../../library/presentation/pages/library_page.dart';
 import '../../../quiz/presentation/pages/quiz_page.dart';
 import '../../../profile/presentation/pages/profile_page.dart';
+import '../../../kural/domain/services/children_explanation_service.dart';
 
 class HomeDashboardPage extends StatefulWidget {
   const HomeDashboardPage({super.key});
@@ -17,6 +18,7 @@ class HomeDashboardPage extends StatefulWidget {
 class _HomeDashboardPageState extends State<HomeDashboardPage> {
   int _selectedIndex = 0;
   bool _showTamilExplanation = true;
+  final ChildrenExplanationService _childrenService = ChildrenExplanationService();
 
   late final List<Widget> _pages;
 
@@ -75,9 +77,12 @@ class _HomeDashboardPageState extends State<HomeDashboardPage> {
       _buildProfilePage(),
     ];
     
-    // Load daily kural after the first frame
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<KuralBloc>().add(GetDailyKuralEvent());
+    // Load children explanations and daily kural after the first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _childrenService.loadExplanations();
+      if (mounted) {
+        context.read<KuralBloc>().add(GetDailyKuralEvent());
+      }
     });
   }
 
@@ -351,7 +356,10 @@ class _HomeDashboardPageState extends State<HomeDashboardPage> {
                             ),
                             const SizedBox(height: 12),
                             Text(
-                              'Just like \'A\' is the first letter you learn in school, God is the beginning of everything in this world! When you start learning, you begin with \'A\'. Similarly, everything in the universe starts with God.',
+                              _childrenService.getExplanationOrDefault(
+                                kural.number,
+                                'This kural teaches us an important lesson about life. It helps us understand how to be better people and live happily with others!',
+                              ),
                               style: GoogleFonts.quicksand(
                                 fontSize: 14,
                                 color: _todayColors['text']!.withOpacity(0.9),
