@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../kural/presentation/bloc/kural_bloc.dart';
-import '../../../kural/presentation/pages/daily_kural_page.dart';
 import '../../../library/presentation/pages/library_page.dart';
 import '../../../quiz/presentation/pages/quiz_page.dart';
+import '../../../quiz/presentation/pages/daily_challenge_page.dart';
 import '../../../profile/presentation/pages/profile_page.dart';
 import '../../../kural/domain/services/children_explanation_service.dart';
 
@@ -478,7 +478,7 @@ class _HomeDashboardPageState extends State<HomeDashboardPage> {
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const DailyKuralPage()),
+          MaterialPageRoute(builder: (context) => const DailyChallengePage()),
         );
       },
       child: Container(
