@@ -13,6 +13,7 @@ import 'features/kural/domain/services/favorites_service.dart';
 import 'features/kural/presentation/bloc/kural_bloc.dart';
 import 'core/services/notification_service.dart';
 import 'core/services/share_service.dart';
+import 'core/services/auth_service.dart';
 
 final sl = GetIt.instance;
 
@@ -44,6 +45,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => FavoritesService(sl()));
   sl.registerLazySingleton(() => NotificationService());
   sl.registerLazySingleton(() => ShareService());
+  sl.registerLazySingleton(() => AuthService());
 
   //! Core
   sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl()));

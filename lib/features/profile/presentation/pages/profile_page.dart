@@ -3,6 +3,8 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:isar/isar.dart';
 import '../../../../injection_container.dart' as di;
+import '../../../kural/data/models/kural_model.dart';
+
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});

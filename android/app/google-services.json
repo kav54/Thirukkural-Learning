@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "687791599216",
+    "project_id": "thirukkural-learning",
+    "storage_bucket": "thirukkural-learning.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:687791599216:android:c60522adaaca3b3e6d8eb5",
+        "android_client_info": {
+          "package_name": "com.thirukkural.journey.thirukkural_journey"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "687791599216-s412fn7ljv6lguqbqcu4vdqaqpjcaad0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.thirukkural.journey.thirukkural_journey",
+            "certificate_hash": "fa679a3c752bb35f2e41a1f208c345c634030c01"
+          }
+        },
+        {
+          "client_id": "687791599216-10q3j8p1l2ukdlk6sjirho73j349j21t.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC0Zp0eXKBTk6zQPoxWuCvBJKEZJmjNXVQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "687791599216-10q3j8p1l2ukdlk6sjirho73j349j21t.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "687791599216-3r9viarq3as14llgfgkin21st1qr20m8.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.thirukkural.journey.thirukkuralJourney"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

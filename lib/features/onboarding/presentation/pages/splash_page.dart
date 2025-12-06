@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'welcome_page.dart';
+import 'auth_page.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -13,14 +13,14 @@ class _SplashPageState extends State<SplashPage> {
   @override
   void initState() {
     super.initState();
-    _navigateToWelcome();
+    _navigateToAuth();
   }
 
-  Future<void> _navigateToWelcome() async {
+  Future<void> _navigateToAuth() async {
     await Future.delayed(const Duration(seconds: 3));
     if (mounted) {
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const WelcomePage()),
+        MaterialPageRoute(builder: (context) => const AuthPage()),
       );
     }
   }
