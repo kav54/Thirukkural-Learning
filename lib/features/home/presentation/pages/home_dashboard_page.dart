@@ -9,6 +9,7 @@ import '../../../profile/presentation/pages/profile_page.dart';
 import '../../../kural/domain/services/children_explanation_service.dart';
 import '../../../kural/domain/services/favorites_service.dart';
 import '../../../../core/services/share_service.dart';
+import '../../../../core/services/streak_service.dart';
 import '../../../../injection_container.dart' as di;
 
 class HomeDashboardPage extends StatefulWidget {
@@ -24,6 +25,9 @@ class _HomeDashboardPageState extends State<HomeDashboardPage> {
   final ChildrenExplanationService _childrenService = ChildrenExplanationService();
   final FavoritesService _favoritesService = di.sl<FavoritesService>();
   final ShareService _shareService = di.sl<ShareService>();
+  final StreakService _streakService = di.sl<StreakService>();
+  int _currentStreak = 0;
+  int _weeklyProgress = 0;
 
   late final List<Widget> _pages;
 
@@ -85,7 +89,28 @@ class _HomeDashboardPageState extends State<HomeDashboardPage> {
     // Load children explanations and daily kural after the first frame
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await _childrenService.loadExplanations();
+      
+      // Update streak
+      final result = await _streakService.updateStreak();
+      final weeklyProgress = _streakService.getWeeklyProgress();
+      
       if (mounted) {
+        setState(() {
+          _currentStreak = result.newStreak;
+          _weeklyProgress = weeklyProgress;
+        });
+        
+        // Show streak message if needed
+        if (result.isNewRecord || result.streakBroken) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(result.message),
+              backgroundColor: result.streakBroken ? Colors.orange : Colors.green,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+        
         context.read<KuralBloc>().add(GetDailyKuralEvent());
       }
     });
@@ -158,7 +183,8 @@ class _HomeDashboardPageState extends State<HomeDashboardPage> {
               Text(
                 'Daily wisdom for life',
                 style: GoogleFonts.quicksand(
-                  fontSize: 14,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
                   color: const Color(0xFF64748B),
                 ),
               ),
@@ -650,11 +676,11 @@ class _HomeDashboardPageState extends State<HomeDashboardPage> {
                   fontWeight: FontWeight.w600,
                   color: const Color(0xFF334155),
                 ),
-                children: const [
-                  TextSpan(text: 'Your weekly goal: '),
+                children: [
+                  const TextSpan(text: 'Your weekly goal: '),
                   TextSpan(
-                    text: '0/3 days',
-                    style: TextStyle(
+                    text: '$_weeklyProgress/3 days',
+                    style: const TextStyle(
                       fontWeight: FontWeight.w800,
                       color: Color(0xFF0F172A),
                     ),

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:math';
+import '../../../../core/services/streak_service.dart';
+import '../../../../injection_container.dart' as di;
 
 class WordleGamePage extends StatefulWidget {
   final List<String> wordPool;
@@ -139,7 +141,23 @@ class _WordleGamePageState extends State<WordleGamePage> with SingleTickerProvid
     });
   }
   
-  void _showResultDialog(bool won) {
+  void _showResultDialog(bool won) async {
+    // Update streak on game completion (win or loss)
+    final streakService = di.sl<StreakService>();
+    final result = await streakService.updateStreak();
+    
+    if (mounted && (result.isNewRecord || !result.streakBroken)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(result.message),
+          backgroundColor: Colors.green,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+
+    if (!mounted) return;
+
     Future.delayed(const Duration(milliseconds: 500), () {
       showDialog(
         context: context,
