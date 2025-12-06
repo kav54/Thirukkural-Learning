@@ -27,28 +27,33 @@ const KuralModelSchema = CollectionSchema(
       name: r'chapterNumber',
       type: IsarType.long,
     ),
-    r'line1Tamil': PropertySchema(
+    r'isFavorite': PropertySchema(
       id: 2,
+      name: r'isFavorite',
+      type: IsarType.bool,
+    ),
+    r'line1Tamil': PropertySchema(
+      id: 3,
       name: r'line1Tamil',
       type: IsarType.string,
     ),
     r'line2Tamil': PropertySchema(
-      id: 3,
+      id: 4,
       name: r'line2Tamil',
       type: IsarType.string,
     ),
     r'meaningEnglish': PropertySchema(
-      id: 4,
+      id: 5,
       name: r'meaningEnglish',
       type: IsarType.string,
     ),
     r'meaningTamil': PropertySchema(
-      id: 5,
+      id: 6,
       name: r'meaningTamil',
       type: IsarType.string,
     ),
     r'number': PropertySchema(
-      id: 6,
+      id: 7,
       name: r'number',
       type: IsarType.long,
     )
@@ -116,11 +121,12 @@ void _kuralModelSerialize(
 ) {
   writer.writeString(offsets[0], object.chapterName);
   writer.writeLong(offsets[1], object.chapterNumber);
-  writer.writeString(offsets[2], object.line1Tamil);
-  writer.writeString(offsets[3], object.line2Tamil);
-  writer.writeString(offsets[4], object.meaningEnglish);
-  writer.writeString(offsets[5], object.meaningTamil);
-  writer.writeLong(offsets[6], object.number);
+  writer.writeBool(offsets[2], object.isFavorite);
+  writer.writeString(offsets[3], object.line1Tamil);
+  writer.writeString(offsets[4], object.line2Tamil);
+  writer.writeString(offsets[5], object.meaningEnglish);
+  writer.writeString(offsets[6], object.meaningTamil);
+  writer.writeLong(offsets[7], object.number);
 }
 
 KuralModel _kuralModelDeserialize(
@@ -133,11 +139,12 @@ KuralModel _kuralModelDeserialize(
   object.chapterName = reader.readString(offsets[0]);
   object.chapterNumber = reader.readLong(offsets[1]);
   object.id = id;
-  object.line1Tamil = reader.readString(offsets[2]);
-  object.line2Tamil = reader.readString(offsets[3]);
-  object.meaningEnglish = reader.readString(offsets[4]);
-  object.meaningTamil = reader.readString(offsets[5]);
-  object.number = reader.readLong(offsets[6]);
+  object.isFavorite = reader.readBool(offsets[2]);
+  object.line1Tamil = reader.readString(offsets[3]);
+  object.line2Tamil = reader.readString(offsets[4]);
+  object.meaningEnglish = reader.readString(offsets[5]);
+  object.meaningTamil = reader.readString(offsets[6]);
+  object.number = reader.readLong(offsets[7]);
   return object;
 }
 
@@ -153,7 +160,7 @@ P _kuralModelDeserializeProp<P>(
     case 1:
       return (reader.readLong(offset)) as P;
     case 2:
-      return (reader.readString(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 3:
       return (reader.readString(offset)) as P;
     case 4:
@@ -161,6 +168,8 @@ P _kuralModelDeserializeProp<P>(
     case 5:
       return (reader.readString(offset)) as P;
     case 6:
+      return (reader.readString(offset)) as P;
+    case 7:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -696,6 +705,16 @@ extension KuralModelQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<KuralModel, KuralModel, QAfterFilterCondition> isFavoriteEqualTo(
+      bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'isFavorite',
+        value: value,
       ));
     });
   }
@@ -1328,6 +1347,18 @@ extension KuralModelQuerySortBy
     });
   }
 
+  QueryBuilder<KuralModel, KuralModel, QAfterSortBy> sortByIsFavorite() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isFavorite', Sort.asc);
+    });
+  }
+
+  QueryBuilder<KuralModel, KuralModel, QAfterSortBy> sortByIsFavoriteDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isFavorite', Sort.desc);
+    });
+  }
+
   QueryBuilder<KuralModel, KuralModel, QAfterSortBy> sortByLine1Tamil() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'line1Tamil', Sort.asc);
@@ -1428,6 +1459,18 @@ extension KuralModelQuerySortThenBy
     });
   }
 
+  QueryBuilder<KuralModel, KuralModel, QAfterSortBy> thenByIsFavorite() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isFavorite', Sort.asc);
+    });
+  }
+
+  QueryBuilder<KuralModel, KuralModel, QAfterSortBy> thenByIsFavoriteDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isFavorite', Sort.desc);
+    });
+  }
+
   QueryBuilder<KuralModel, KuralModel, QAfterSortBy> thenByLine1Tamil() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'line1Tamil', Sort.asc);
@@ -1505,6 +1548,12 @@ extension KuralModelQueryWhereDistinct
     });
   }
 
+  QueryBuilder<KuralModel, KuralModel, QDistinct> distinctByIsFavorite() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isFavorite');
+    });
+  }
+
   QueryBuilder<KuralModel, KuralModel, QDistinct> distinctByLine1Tamil(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -1558,6 +1607,12 @@ extension KuralModelQueryProperty
   QueryBuilder<KuralModel, int, QQueryOperations> chapterNumberProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'chapterNumber');
+    });
+  }
+
+  QueryBuilder<KuralModel, bool, QQueryOperations> isFavoriteProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isFavorite');
     });
   }
 

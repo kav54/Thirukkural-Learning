@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../domain/entities/quiz.dart';
 
@@ -82,7 +81,7 @@ class QuizResultsPage extends StatelessWidget {
           style: const TextStyle(fontSize: 60),
         ),
       ),
-    ).animate().scale(duration: 600.ms, curve: Curves.elasticOut);
+    );
   }
 
   Widget _buildTitle(bool isPerfect, bool isGood) {
@@ -99,7 +98,7 @@ class QuizResultsPage extends StatelessWidget {
         fontWeight: FontWeight.w800,
         color: const Color(0xFF0F172A),
       ),
-    ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.3, end: 0);
+    );
   }
 
   Widget _buildSubtitle(bool isPerfect, bool isGood) {
@@ -115,7 +114,7 @@ class QuizResultsPage extends StatelessWidget {
         fontSize: 16,
         color: const Color(0xFF64748B),
       ),
-    ).animate().fadeIn(delay: 300.ms);
+    );
   }
 
   Widget _buildScoreCard() {
@@ -168,7 +167,7 @@ class QuizResultsPage extends StatelessWidget {
           ),
         ],
       ),
-    ).animate().fadeIn(delay: 400.ms).scale();
+    );
   }
 
   Widget _buildStats() {
@@ -199,7 +198,7 @@ class QuizResultsPage extends StatelessWidget {
           ),
         ),
       ],
-    ).animate().fadeIn(delay: 500.ms);
+    );
   }
 
   Widget _buildStatCard(String label, String value, IconData icon, Color color) {
@@ -300,6 +299,6 @@ class QuizResultsPage extends StatelessWidget {
           ),
         ],
       ),
-    ).animate().fadeIn(delay: 600.ms).slideY(begin: 0.3, end: 0);
+    );
   }
 }

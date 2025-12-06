@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../domain/usecases/quiz_generator.dart';
+import '../../domain/usecases/wordle_word_generator.dart';
 import '../../../../injection_container.dart' as di;
 import 'fill_blanks_quiz_page.dart';
+import 'wordle_game_page.dart';
 
 class DailyChallengePage extends StatelessWidget {
   const DailyChallengePage({super.key});
@@ -65,7 +66,7 @@ class DailyChallengePage extends StatelessWidget {
             colors: [Color(0xFFF97316), Color(0xFFEA580C)],
           ),
           true, // Pulse effect
-        ).animate().fadeIn(delay: 100.ms).scale(),
+        ),
         
         _buildGameCard(
           context,
@@ -76,7 +77,7 @@ class DailyChallengePage extends StatelessWidget {
             colors: [Color(0xFF3B82F6), Color(0xFF2563EB)],
           ),
           false,
-        ).animate().fadeIn(delay: 200.ms).scale(),
+        ),
         
         _buildGameCard(
           context,
@@ -87,7 +88,7 @@ class DailyChallengePage extends StatelessWidget {
             colors: [Color(0xFF10B981), Color(0xFF059669)],
           ),
           false,
-        ).animate().fadeIn(delay: 300.ms).scale(),
+        ),
         
         _buildGameCard(
           context,
@@ -98,7 +99,7 @@ class DailyChallengePage extends StatelessWidget {
             colors: [Color(0xFFEC4899), Color(0xFFDB2777)],
           ),
           false,
-        ).animate().fadeIn(delay: 400.ms).scale(),
+        ),
       ],
     );
   }
@@ -113,7 +114,41 @@ class DailyChallengePage extends StatelessWidget {
   ) {
     return GestureDetector(
       onTap: () async {
-        if (title == 'Fill Blanks') {
+        if (title == 'Word Puzzle') {
+          // Show loading
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => const Center(
+              child: CircularProgressIndicator(color: Colors.white),
+            ),
+          );
+          
+          // Generate word pool for Wordle
+          final wordGenerator = WordleWordGenerator(di.sl());
+          final wordPool = await wordGenerator.generateWordPool();
+          
+          // If word pool is empty, use curated list
+          final finalWordPool = wordPool.isEmpty 
+            ? wordGenerator.getCuratedWordList()
+            : wordPool;
+          
+          // Close loading
+          if (context.mounted) Navigator.pop(context);
+          
+          if (finalWordPool.isNotEmpty && context.mounted) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => WordleGamePage(wordPool: finalWordPool),
+              ),
+            );
+          } else if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Failed to generate word pool')),
+            );
+          }
+        } else if (title == 'Fill Blanks') {
           // Show loading
           showDialog(
             context: context,

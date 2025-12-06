@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../kural/presentation/bloc/kural_bloc.dart';
-import '../../../kural/presentation/pages/daily_kural_page.dart';
 import '../../../library/presentation/pages/library_page.dart';
 import '../../../quiz/presentation/pages/quiz_page.dart';
+import '../../../quiz/presentation/pages/daily_challenge_page.dart';
 import '../../../profile/presentation/pages/profile_page.dart';
+import '../../../kural/domain/services/children_explanation_service.dart';
+import '../../../kural/domain/services/favorites_service.dart';
+import '../../../../core/services/share_service.dart';
+import '../../../../injection_container.dart' as di;
 
 class HomeDashboardPage extends StatefulWidget {
   const HomeDashboardPage({super.key});
@@ -18,8 +21,55 @@ class HomeDashboardPage extends StatefulWidget {
 class _HomeDashboardPageState extends State<HomeDashboardPage> {
   int _selectedIndex = 0;
   bool _showTamilExplanation = true;
+  final ChildrenExplanationService _childrenService = ChildrenExplanationService();
+  final FavoritesService _favoritesService = di.sl<FavoritesService>();
+  final ShareService _shareService = di.sl<ShareService>();
 
   late final List<Widget> _pages;
+
+  // Soft color palette for daily rotation
+  final List<Map<String, Color>> _dailyColorPalettes = [
+    {
+      'bg': const Color(0xFFFFE0E0), // Soft Pink
+      'accent': const Color(0xFFFF6B9D),
+      'text': const Color(0xFF4A0E2E),
+    },
+    {
+      'bg': const Color(0xFFE0F2FE), // Soft Blue
+      'accent': const Color(0xFF7AC3F4),
+      'text': const Color(0xFF0C4A6E),
+    },
+    {
+      'bg': const Color(0xFFFEF3C7), // Soft Yellow
+      'accent': const Color(0xFFFBBF24),
+      'text': const Color(0xFF78350F),
+    },
+    {
+      'bg': const Color(0xFFE0F2E9), // Soft Green
+      'accent': const Color(0xFF6EE7B7),
+      'text': const Color(0xFF064E3B),
+    },
+    {
+      'bg': const Color(0xFFF3E8FF), // Soft Purple
+      'accent': const Color(0xFF8B5CF6),
+      'text': const Color(0xFF4C1D95),
+    },
+    {
+      'bg': const Color(0xFFFFE4CC), // Soft Peach
+      'accent': const Color(0xFFFFA068),
+      'text': const Color(0xFF7C2D12),
+    },
+    {
+      'bg': const Color(0xFFE0E7FF), // Soft Lavender
+      'accent': const Color(0xFF818CF8),
+      'text': const Color(0xFF312E81),
+    },
+  ];
+
+  Map<String, Color> get _todayColors {
+    final dayOfWeek = DateTime.now().weekday - 1; // 0-6 (Monday-Sunday)
+    return _dailyColorPalettes[dayOfWeek % _dailyColorPalettes.length];
+  }
 
   @override
   void initState() {
@@ -32,9 +82,12 @@ class _HomeDashboardPageState extends State<HomeDashboardPage> {
       _buildProfilePage(),
     ];
     
-    // Load daily kural after the first frame
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<KuralBloc>().add(GetDailyKuralEvent());
+    // Load children explanations and daily kural after the first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _childrenService.loadExplanations();
+      if (mounted) {
+        context.read<KuralBloc>().add(GetDailyKuralEvent());
+      }
     });
   }
 
@@ -49,40 +102,30 @@ class _HomeDashboardPageState extends State<HomeDashboardPage> {
 
   Widget _buildHomePage() {
     return SafeArea(
-      child: Column(
-        children: [
-          // Header
-          _buildHeader(),
-          
-          // Scrollable Content
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.only(bottom: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Weekly Goal Banner
-                  _buildWeeklyGoalBanner(),
-                  
-                  const SizedBox(height: 10),
-                  
-                  // Today's Kural Section
-                  _buildSectionTitle('இன்றைய குறள்', 'Picked based on your learning path.'),
-                  
-                  // Kural Card
-                  _buildTodayKuralCard(),
-                  
-                  const SizedBox(height: 32),
-                  
-                  // Smarter in 5 minutes
-                  _buildSectionTitle('Smarter in 5 minutes', 'Shorts help you learn something new every day.'),
-                  
-                  _buildShortsSection(),
-                ],
-              ),
-            ),
-          ),
-        ],
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            // Minimal Header
+            _buildMinimalHeader(),
+            
+            const SizedBox(height: 20),
+            
+            // Weekly Streak Banner
+            _buildWeeklyGoalBanner(),
+            
+            const SizedBox(height: 24),
+            
+            // Kural of the Day Card
+            _buildKuralOfTheDayCard(),
+            
+            const SizedBox(height: 24),
+            
+            // Daily Challenge Link
+            _buildDailyChallengeLink(),
+            
+            const SizedBox(height: 40),
+          ],
+        ),
       ),
     );
   }
@@ -95,6 +138,461 @@ class _HomeDashboardPageState extends State<HomeDashboardPage> {
     return const ProfilePage();
   }
 
+  Widget _buildMinimalHeader() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Kural of the Day',
+                style: GoogleFonts.quicksand(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w800,
+                  color: const Color(0xFF0F172A),
+                ),
+              ),
+              Text(
+                'Daily wisdom for life',
+                style: GoogleFonts.quicksand(
+                  fontSize: 14,
+                  color: const Color(0xFF64748B),
+                ),
+              ),
+            ],
+          ),
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
+            ),
+            child: const Icon(Icons.menu, size: 24),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildKuralOfTheDayCard() {
+    return BlocBuilder<KuralBloc, KuralState>(
+      builder: (context, state) {
+        if (state is KuralLoading) {
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(40.0),
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+        
+        if (state is KuralError) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(40.0),
+              child: Text(state.message),
+            ),
+          );
+        }
+        
+        if (state is KuralLoaded) {
+          final kural = state.kural;
+          
+          return Container(
+            margin: const EdgeInsets.symmetric(horizontal: 24),
+            decoration: BoxDecoration(
+              color: _todayColors['bg'],
+              borderRadius: BorderRadius.circular(32),
+              boxShadow: [
+                BoxShadow(
+                  color: _todayColors['accent']!.withOpacity(0.2),
+                  blurRadius: 30,
+                  offset: const Offset(0, 10),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Kural Number Badge
+                Container(
+                  padding: const EdgeInsets.all(24),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.5),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          'KURAL #${kural.number}',
+                          style: GoogleFonts.quicksand(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w800,
+                            color: _todayColors['text'],
+                          ),
+                        ),
+                      ),
+                      // Favorite Button
+                      FutureBuilder<bool>(
+                        future: _favoritesService.isFavorite(kural.number),
+                        builder: (context, snapshot) {
+                          final isFavorite = snapshot.data ?? false;
+                          return IconButton(
+                            icon: Icon(
+                              isFavorite ? Icons.favorite : Icons.favorite_border,
+                              color: _todayColors['accent'],
+                            ),
+                            onPressed: () async {
+                              final newState = await _favoritesService.toggleFavorite(kural.number);
+                              setState(() {}); // Refresh UI
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    newState ? 'Added to favorites! ❤️' : 'Removed from favorites',
+                                  ),
+                                  duration: const Duration(seconds: 1),
+                                  backgroundColor: newState ? const Color(0xFF10B981) : const Color(0xFF64748B),
+                                ),
+                              );
+                            },
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                
+                // Kural Text
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Column(
+                    children: [
+                      Text(
+                        '${kural.line1Tamil}\n${kural.line2Tamil}',
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.mukta(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                          color: _todayColors['text'],
+                          height: 1.8,
+                        ),
+                      ),
+                      const SizedBox(height: 32),
+                      
+                      // Audio Player
+                      _buildAudioPlayer(),
+                    ],
+                  ),
+                ),
+                
+                const SizedBox(height: 20),
+                
+                // Share Button
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: ElevatedButton.icon(
+                    onPressed: () async {
+                      await _shareService.shareKural(kural, context: context);
+                    },
+                    icon: const Icon(Icons.share, size: 18),
+                    label: Text(
+                      'Share This Kural',
+                      style: GoogleFonts.quicksand(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: _todayColors['accent'],
+                      elevation: 0,
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(99),
+                        side: BorderSide(color: _todayColors['accent']!.withOpacity(0.3)),
+                      ),
+                    ),
+                  ),
+                ),
+                
+                const SizedBox(height: 32),
+                
+                // Explanation Section
+                Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.6),
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(32),
+                      bottomRight: Radius.circular(32),
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Language Toggle
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'EXPLANATION',
+                            style: GoogleFonts.quicksand(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: _todayColors['text']!.withOpacity(0.7),
+                              letterSpacing: 1.2,
+                            ),
+                          ),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(color: _todayColors['accent']!.withOpacity(0.3)),
+                            ),
+                            child: Row(
+                              children: [
+                                _buildLangButton('தமிழ்', _showTamilExplanation, () {
+                                  setState(() => _showTamilExplanation = true);
+                                }),
+                                _buildLangButton('ENG', !_showTamilExplanation, () {
+                                  setState(() => _showTamilExplanation = false);
+                                }),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        _showTamilExplanation ? kural.meaningTamil : kural.meaningEnglish,
+                        style: GoogleFonts.quicksand(
+                          fontSize: 15,
+                          color: _todayColors['text'],
+                          height: 1.6,
+                        ),
+                      ),
+                      
+                      const SizedBox(height: 24),
+                      
+                      // Children's Explanation
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.8),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: _todayColors['accent']!.withOpacity(0.3)),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                const Text('💡', style: TextStyle(fontSize: 20)),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'For Little Learners',
+                                  style: GoogleFonts.quicksand(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    color: _todayColors['text'],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              _childrenService.getExplanationOrDefault(
+                                kural.number,
+                                'This kural teaches us an important lesson about life. It helps us understand how to be better people and live happily with others!',
+                              ),
+                              style: GoogleFonts.quicksand(
+                                fontSize: 14,
+                                color: _todayColors['text']!.withOpacity(0.9),
+                                height: 1.5,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+        
+        return const SizedBox.shrink();
+      },
+    );
+  }
+
+  Widget _buildLangButton(String label, bool isActive, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: isActive ? _todayColors['accent'] : Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Text(
+          label,
+          style: GoogleFonts.quicksand(
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+            color: isActive ? Colors.white : _todayColors['text']!.withOpacity(0.6),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAudioPlayer() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFE0F2FE),
+        borderRadius: BorderRadius.circular(50),
+      ),
+      child: Row(
+        children: [
+          // Play Button
+          Container(
+            width: 40,
+            height: 40,
+            decoration: const BoxDecoration(
+              color: Color(0xFF7AC3F4),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.play_arrow,
+              color: Colors.white,
+              size: 24,
+            ),
+          ),
+          
+          const SizedBox(width: 16),
+          
+          // Waveform (simplified with bars)
+          Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(15, (index) {
+                final heights = [8.0, 12.0, 16.0, 10.0, 14.0, 18.0, 12.0, 16.0, 14.0, 10.0, 16.0, 12.0, 14.0, 10.0, 8.0];
+                return Container(
+                  width: 3,
+                  height: heights[index],
+                  margin: const EdgeInsets.symmetric(horizontal: 2),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF7AC3F4),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                );
+              }),
+            ),
+          ),
+          
+          const SizedBox(width: 16),
+          
+          // Time
+          Text(
+            '0:05',
+            style: GoogleFonts.quicksand(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: const Color(0xFF0F172A),
+            ),
+          ),
+          
+          const SizedBox(width: 16),
+          
+          // Volume Icon
+          const Icon(
+            Icons.volume_up,
+            color: Color(0xFF7AC3F4),
+            size: 24,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDailyChallengeLink() {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const DailyChallengePage()),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 24),
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFF8B5CF6), Color(0xFF7C3AED)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF8B5CF6).withOpacity(0.3),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.2),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.emoji_events, color: Colors.white, size: 32),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Daily Challenge',
+                    style: GoogleFonts.quicksand(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Test your knowledge & earn rewards!',
+                    style: GoogleFonts.quicksand(
+                      fontSize: 14,
+                      color: Colors.white.withOpacity(0.9),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.arrow_forward, color: Colors.white),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Keep old methods for reference but they won't be used
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -121,7 +619,7 @@ class _HomeDashboardPageState extends State<HomeDashboardPage> {
           ),
         ],
       ),
-    ).animate().fadeIn();
+    );
   }
 
   Widget _buildWeeklyGoalBanner() {
@@ -168,7 +666,7 @@ class _HomeDashboardPageState extends State<HomeDashboardPage> {
           Icon(Icons.chevron_right, color: Colors.grey.shade600),
         ],
       ),
-    ).animate().fadeIn(delay: 100.ms);
+    );
   }
 
   Widget _buildSectionTitle(String title, String subtitle) {
@@ -387,7 +885,7 @@ class _HomeDashboardPageState extends State<HomeDashboardPage> {
                 ),
               ],
             ),
-          ).animate().fadeIn(delay: 200.ms).scale(duration: 400.ms);
+          );
         }
         
         return const SizedBox.shrink();
@@ -395,26 +893,6 @@ class _HomeDashboardPageState extends State<HomeDashboardPage> {
     );
   }
 
-  Widget _buildLangButton(String label, bool isActive, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-        decoration: BoxDecoration(
-          color: isActive ? const Color(0xFFF59E0B) : Colors.transparent,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Text(
-          label,
-          style: GoogleFonts.quicksand(
-            fontSize: 11,
-            fontWeight: FontWeight.w700,
-            color: isActive ? const Color(0xFF0F172A) : const Color(0xFF94A3B8),
-          ),
-        ),
-      ),
-    );
-  }
 
   Widget _buildShortsSection() {
     return SingleChildScrollView(
@@ -448,7 +926,7 @@ class _HomeDashboardPageState extends State<HomeDashboardPage> {
           ),
         ],
       ),
-    ).animate().fadeIn(delay: 400.ms);
+    );
   }
 
   Widget _buildShortCard(String title, IconData icon, Gradient gradient, {bool isDark = false}) {

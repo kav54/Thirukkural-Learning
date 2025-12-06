@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'welcome_page.dart';
 
@@ -48,13 +47,9 @@ class _SplashPageState extends State<SplashPage> {
               // Animated Icon/Mascot Placeholder
               const Icon(
                 Icons.menu_book_rounded,
-                size: 100,
+                size: 80,
                 color: Colors.white,
-              )
-                  .animate()
-                  .scale(duration: 600.ms, curve: Curves.easeOutBack)
-                  .then(delay: 200.ms)
-                  .shimmer(duration: 1200.ms),
+              ),
 
               const SizedBox(height: 24),
 
@@ -66,7 +61,7 @@ class _SplashPageState extends State<SplashPage> {
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
-              ).animate().fadeIn(delay: 400.ms).slideY(begin: 0.2, end: 0),
+              ),
 
               const SizedBox(height: 8),
 
@@ -78,14 +73,14 @@ class _SplashPageState extends State<SplashPage> {
                   fontWeight: FontWeight.w600,
                   color: Colors.white.withOpacity(0.9),
                 ),
-              ).animate().fadeIn(delay: 600.ms).slideY(begin: 0.2, end: 0),
+              ),
 
               const SizedBox(height: 48),
 
               // Loading Indicator
               const CircularProgressIndicator(
                 valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-              ).animate().fadeIn(delay: 1000.ms),
+              ),
             ],
           ),
         ),

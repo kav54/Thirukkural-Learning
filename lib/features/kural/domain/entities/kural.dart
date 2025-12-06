@@ -8,6 +8,7 @@ class Kural extends Equatable {
   final String meaningEnglish;
   final int chapterNumber;
   final String chapterName;
+  final bool isFavorite;
 
   const Kural({
     required this.number,
@@ -17,7 +18,30 @@ class Kural extends Equatable {
     required this.meaningEnglish,
     required this.chapterNumber,
     required this.chapterName,
+    this.isFavorite = false,
   });
+
+  Kural copyWith({
+    int? number,
+    String? line1Tamil,
+    String? line2Tamil,
+    String? meaningTamil,
+    String? meaningEnglish,
+    int? chapterNumber,
+    String? chapterName,
+    bool? isFavorite,
+  }) {
+    return Kural(
+      number: number ?? this.number,
+      line1Tamil: line1Tamil ?? this.line1Tamil,
+      line2Tamil: line2Tamil ?? this.line2Tamil,
+      meaningTamil: meaningTamil ?? this.meaningTamil,
+      meaningEnglish: meaningEnglish ?? this.meaningEnglish,
+      chapterNumber: chapterNumber ?? this.chapterNumber,
+      chapterName: chapterName ?? this.chapterName,
+      isFavorite: isFavorite ?? this.isFavorite,
+    );
+  }
 
   @override
   List<Object> get props => [
@@ -28,5 +52,6 @@ class Kural extends Equatable {
         meaningEnglish,
         chapterNumber,
         chapterName,
+        isFavorite,
       ];
 }

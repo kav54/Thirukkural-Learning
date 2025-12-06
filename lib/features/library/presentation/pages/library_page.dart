@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:isar/isar.dart';
 import '../../../../injection_container.dart' as di;
 import '../../../kural/data/models/kural_model.dart';
+import '../../../kural/domain/services/favorites_service.dart';
+import 'favorites_page.dart';
 
 class LibraryPage extends StatefulWidget {
   const LibraryPage({super.key});
@@ -19,6 +20,7 @@ class _LibraryPageState extends State<LibraryPage> {
   String _currentChapterName = '';
 
   final Isar _isar = di.sl<Isar>();
+  final FavoritesService _favoritesService = di.sl<FavoritesService>();
 
   @override
   Widget build(BuildContext context) {
@@ -72,15 +74,58 @@ class _LibraryPageState extends State<LibraryPage> {
               ),
             ),
             const SizedBox(width: 12),
-            Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-                border: Border.all(color: const Color(0xFFE2E8F0)),
-              ),
-              child: const Icon(Icons.favorite, color: Color(0xFFEC4899)),
+            StreamBuilder<int>(
+              stream: _favoritesService.watchFavoriteCount(),
+              builder: (context, snapshot) {
+                final count = snapshot.data ?? 0;
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const FavoritesPage()),
+                    );
+                  },
+                  child: Stack(
+                    children: [
+                      Container(
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                        ),
+                        child: const Icon(Icons.favorite, color: Color(0xFFEC4899)),
+                      ),
+                      if (count > 0)
+                        Positioned(
+                          right: 0,
+                          top: 0,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: const BoxDecoration(
+                              color: Color(0xFFEC4899),
+                              shape: BoxShape.circle,
+                            ),
+                            constraints: const BoxConstraints(
+                              minWidth: 18,
+                              minHeight: 18,
+                            ),
+                            child: Text(
+                              count > 99 ? '99+' : count.toString(),
+                              style: GoogleFonts.quicksand(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                );
+              },
             ),
           ],
         ),
@@ -139,7 +184,7 @@ class _LibraryPageState extends State<LibraryPage> {
               colors: [Color(0xFFEC4899), Color(0xFFDB2777)],
             ),
             () => _openTheme('Virtue'),
-          ).animate().fadeIn(delay: 100.ms),
+          ),
           const SizedBox(height: 16),
           _buildThemeCard(
             'பொருட்பால்',
@@ -150,7 +195,7 @@ class _LibraryPageState extends State<LibraryPage> {
               colors: [Color(0xFF3B82F6), Color(0xFF2563EB)],
             ),
             () => _openTheme('Wealth'),
-          ).animate().fadeIn(delay: 200.ms),
+          ),
           const SizedBox(height: 16),
           _buildThemeCard(
             'காமத்துப்பால்',
@@ -161,7 +206,7 @@ class _LibraryPageState extends State<LibraryPage> {
               colors: [Color(0xFFEAB308), Color(0xFFCA8A04)],
             ),
             () => _openTheme('Love'),
-          ).animate().fadeIn(delay: 300.ms),
+          ),
         ],
       ),
     );
@@ -245,7 +290,7 @@ class _LibraryPageState extends State<LibraryPage> {
               chapter['number'],
               chapter['nameTamil'],
               chapter['nameEnglish'],
-            ).animate(delay: (index * 50).ms).fadeIn().slideX();
+            );
           },
         );
       },
@@ -329,7 +374,7 @@ class _LibraryPageState extends State<LibraryPage> {
           itemCount: kurals.length,
           itemBuilder: (context, index) {
             final kural = kurals[index];
-            return _buildKuralItem(kural).animate(delay: (index * 50).ms).fadeIn();
+            return _buildKuralItem(kural);
           },
         );
       },
@@ -403,15 +448,38 @@ class _LibraryPageState extends State<LibraryPage> {
   Future<List<Map<String, dynamic>>> _getChapters(String theme) async {
     final kurals = await _isar.kuralModels.where().findAll();
     
-    // Group by chapter
+    // Define chapter ranges for each theme
+    int startChapter, endChapter;
+    switch (theme) {
+      case 'Virtue':
+        startChapter = 1;
+        endChapter = 38;
+        break;
+      case 'Wealth':
+        startChapter = 39;
+        endChapter = 108;
+        break;
+      case 'Love':
+        startChapter = 109;
+        endChapter = 133;
+        break;
+      default:
+        startChapter = 1;
+        endChapter = 133;
+    }
+    
+    // Group by chapter and filter by theme
     final chapterMap = <int, Map<String, dynamic>>{};
     for (var kural in kurals) {
-      if (!chapterMap.containsKey(kural.chapterNumber)) {
-        chapterMap[kural.chapterNumber] = {
-          'number': kural.chapterNumber,
-          'nameTamil': kural.chapterName,
-          'nameEnglish': 'Chapter ${kural.chapterNumber}', // You can enhance this
-        };
+      // Only include chapters within the theme's range
+      if (kural.chapterNumber >= startChapter && kural.chapterNumber <= endChapter) {
+        if (!chapterMap.containsKey(kural.chapterNumber)) {
+          chapterMap[kural.chapterNumber] = {
+            'number': kural.chapterNumber,
+            'nameTamil': kural.chapterName,
+            'nameEnglish': 'Chapter ${kural.chapterNumber}',
+          };
+        }
       }
     }
     

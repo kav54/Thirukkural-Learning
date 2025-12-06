@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:isar/isar.dart';
 import '../../../../injection_container.dart' as di;
@@ -74,7 +73,7 @@ class _QuizPageState extends State<QuizPage> {
           ),
         ],
       ),
-    ).animate().fadeIn();
+    );
   }
 
   Widget _buildDailyChallengeBanner() {
@@ -142,7 +141,7 @@ class _QuizPageState extends State<QuizPage> {
           ],
         ),
       ),
-    ).animate().fadeIn(delay: 100.ms).scale();
+    );
   }
 
   Widget _buildChapterQuizzes() {
@@ -182,7 +181,7 @@ class _QuizPageState extends State<QuizPage> {
                   chapter['nameTamil'],
                   chapter['nameEnglish'],
                   index < 3, // First 3 are completed
-                ).animate(delay: (index * 50).ms).fadeIn().slideX();
+                );
               }).toList(),
             );
           },

@@ -19,6 +19,8 @@ class KuralModel {
   late int chapterNumber;
   
   late String chapterName;
+  
+  late bool isFavorite;
 
   KuralModel();
 
@@ -30,6 +32,7 @@ class KuralModel {
     meaningEnglish = kural.meaningEnglish;
     chapterNumber = kural.chapterNumber;
     chapterName = kural.chapterName;
+    isFavorite = kural.isFavorite;
   }
 
   factory KuralModel.fromJson(Map<String, dynamic> json) {
@@ -40,7 +43,8 @@ class KuralModel {
       ..meaningTamil = json['meaningTamil'] as String
       ..meaningEnglish = json['meaningEnglish'] as String
       ..chapterNumber = json['chapterNumber'] as int
-      ..chapterName = json['chapterName'] as String;
+      ..chapterName = json['chapterName'] as String
+      ..isFavorite = json['isFavorite'] as bool? ?? false;
   }
 
   Map<String, dynamic> toJson() {
@@ -52,6 +56,7 @@ class KuralModel {
       'meaningEnglish': meaningEnglish,
       'chapterNumber': chapterNumber,
       'chapterName': chapterName,
+      'isFavorite': isFavorite,
     };
   }
 
@@ -64,6 +69,7 @@ class KuralModel {
       meaningEnglish: meaningEnglish,
       chapterNumber: chapterNumber,
       chapterName: chapterName,
+      isFavorite: isFavorite,
     );
   }
 }
