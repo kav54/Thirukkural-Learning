@@ -12,14 +12,21 @@ void main() async {
   final seedingService = DataSeedingService(di.sl());
   await seedingService.seedKuralsIfNeeded();
   
-  // Initialize and setup notifications
-  final notificationService = di.sl<NotificationService>();
-  await notificationService.initialize();
-  await notificationService.requestPermissions();
-  
-  // Schedule default notifications (9 AM daily kural, 8 PM streak reminder)
-  await notificationService.scheduleDailyKuralNotification(hour: 9, minute: 0);
-  await notificationService.scheduleStreakReminder(hour: 20, minute: 0);
+  // Initialize and setup notifications (with error handling)
+  try {
+    final notificationService = di.sl<NotificationService>();
+    await notificationService.initialize();
+    await notificationService.requestPermissions();
+    
+    // Schedule default notifications (9 AM daily kural, 8 PM streak reminder)
+    await notificationService.scheduleDailyKuralNotification(hour: 9, minute: 0);
+    await notificationService.scheduleStreakReminder(hour: 20, minute: 0);
+    
+    print('✅ Notifications initialized successfully');
+  } catch (e) {
+    print('⚠️ Notification setup failed (app will continue): $e');
+    // App continues even if notifications fail
+  }
   
   runApp(const MyApp());
 }
