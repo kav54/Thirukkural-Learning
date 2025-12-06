@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../domain/entities/quiz.dart';
 
-class QuizResultsPage extends StatelessWidget {
+import '../../../../core/services/streak_service.dart';
+import '../../../../injection_container.dart' as di;
+
+class QuizResultsPage extends StatefulWidget {
   final QuizSession session;
 
   const QuizResultsPage({
@@ -11,8 +14,35 @@ class QuizResultsPage extends StatelessWidget {
   });
 
   @override
+  State<QuizResultsPage> createState() => _QuizResultsPageState();
+}
+
+class _QuizResultsPageState extends State<QuizResultsPage> {
+  @override
+  void initState() {
+    super.initState();
+    _checkAndUpdateStreak();
+  }
+
+  Future<void> _checkAndUpdateStreak() async {
+    // Update streak on quiz completion (any score)
+    final streakService = di.sl<StreakService>();
+    final result = await streakService.updateStreak();
+    
+    if (mounted && (result.isNewRecord || !result.streakBroken)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(result.message),
+          backgroundColor: Colors.green,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final percentage = session.percentage;
+    final percentage = widget.session.percentage;
     final isPerfect = percentage == 100;
     final isGood = percentage >= 70;
     
@@ -118,7 +148,7 @@ class QuizResultsPage extends StatelessWidget {
   }
 
   Widget _buildScoreCard() {
-    final percentage = session.percentage;
+    final percentage = widget.session.percentage;
     
     return Container(
       padding: const EdgeInsets.all(32),
@@ -149,7 +179,7 @@ class QuizResultsPage extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            '${session.score}/${session.totalQuestions}',
+            '${widget.session.score}/${widget.session.totalQuestions}',
             style: GoogleFonts.catamaran(
               fontSize: 48,
               fontWeight: FontWeight.w800,
@@ -171,8 +201,8 @@ class QuizResultsPage extends StatelessWidget {
   }
 
   Widget _buildStats() {
-    final duration = session.endTime != null 
-        ? session.endTime!.difference(session.startTime)
+    final duration = widget.session.endTime != null 
+        ? widget.session.endTime!.difference(widget.session.startTime)
         : Duration.zero;
     
     final minutes = duration.inMinutes;
@@ -183,7 +213,7 @@ class QuizResultsPage extends StatelessWidget {
         Expanded(
           child: _buildStatCard(
             'Questions',
-            '${session.totalQuestions}',
+            '${widget.session.totalQuestions}',
             Icons.quiz,
             const Color(0xFF3B82F6),
           ),

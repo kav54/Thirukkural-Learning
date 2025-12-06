@@ -2,6 +2,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:get_it/get_it.dart';
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'core/network/network_info.dart';
 import 'features/kural/data/datasources/kural_local_data_source.dart';
@@ -13,6 +14,7 @@ import 'features/kural/domain/services/favorites_service.dart';
 import 'features/kural/presentation/bloc/kural_bloc.dart';
 import 'core/services/notification_service.dart';
 import 'core/services/share_service.dart';
+import 'core/services/streak_service.dart';
 
 final sl = GetIt.instance;
 
@@ -56,4 +58,11 @@ Future<void> init() async {
   );
   sl.registerLazySingleton(() => isar);
   sl.registerLazySingleton(() => Connectivity());
+  
+  // Initialize SharedPreferences
+  final prefs = await SharedPreferences.getInstance();
+  sl.registerLazySingleton(() => prefs);
+  
+  // Register StreakService (depends on SharedPreferences)
+  sl.registerLazySingleton(() => StreakService(sl()));
 }
