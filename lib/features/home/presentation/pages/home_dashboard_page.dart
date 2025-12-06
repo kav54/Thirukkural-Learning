@@ -7,6 +7,9 @@ import '../../../quiz/presentation/pages/quiz_page.dart';
 import '../../../quiz/presentation/pages/daily_challenge_page.dart';
 import '../../../profile/presentation/pages/profile_page.dart';
 import '../../../kural/domain/services/children_explanation_service.dart';
+import '../../../kural/domain/services/favorites_service.dart';
+import '../../../../core/services/share_service.dart';
+import '../../../../injection_container.dart' as di;
 
 class HomeDashboardPage extends StatefulWidget {
   const HomeDashboardPage({super.key});
@@ -19,6 +22,8 @@ class _HomeDashboardPageState extends State<HomeDashboardPage> {
   int _selectedIndex = 0;
   bool _showTamilExplanation = true;
   final ChildrenExplanationService _childrenService = ChildrenExplanationService();
+  final FavoritesService _favoritesService = di.sl<FavoritesService>();
+  final ShareService _shareService = di.sl<ShareService>();
 
   late final List<Widget> _pages;
 
@@ -235,11 +240,28 @@ class _HomeDashboardPageState extends State<HomeDashboardPage> {
                         ),
                       ),
                       // Favorite Button
-                      IconButton(
-                        icon: Icon(Icons.favorite_border, color: _todayColors['accent']),
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Added to favorites!')),
+                      FutureBuilder<bool>(
+                        future: _favoritesService.isFavorite(kural.number),
+                        builder: (context, snapshot) {
+                          final isFavorite = snapshot.data ?? false;
+                          return IconButton(
+                            icon: Icon(
+                              isFavorite ? Icons.favorite : Icons.favorite_border,
+                              color: _todayColors['accent'],
+                            ),
+                            onPressed: () async {
+                              final newState = await _favoritesService.toggleFavorite(kural.number);
+                              setState(() {}); // Refresh UI
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    newState ? 'Added to favorites! ❤️' : 'Removed from favorites',
+                                  ),
+                                  duration: const Duration(seconds: 1),
+                                  backgroundColor: newState ? const Color(0xFF10B981) : const Color(0xFF64748B),
+                                ),
+                              );
+                            },
                           );
                         },
                       ),
@@ -267,6 +289,36 @@ class _HomeDashboardPageState extends State<HomeDashboardPage> {
                       // Audio Player
                       _buildAudioPlayer(),
                     ],
+                  ),
+                ),
+                
+                const SizedBox(height: 20),
+                
+                // Share Button
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: ElevatedButton.icon(
+                    onPressed: () async {
+                      await _shareService.shareKural(kural, context: context);
+                    },
+                    icon: const Icon(Icons.share, size: 18),
+                    label: Text(
+                      'Share This Kural',
+                      style: GoogleFonts.quicksand(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: _todayColors['accent'],
+                      elevation: 0,
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(99),
+                        side: BorderSide(color: _todayColors['accent']!.withOpacity(0.3)),
+                      ),
+                    ),
                   ),
                 ),
                 

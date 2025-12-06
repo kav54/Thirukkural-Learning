@@ -9,7 +9,10 @@ import 'features/kural/data/models/kural_model.dart';
 import 'features/kural/data/repositories/kural_repository_impl.dart';
 import 'features/kural/domain/repositories/kural_repository.dart';
 import 'features/kural/domain/usecases/get_daily_kural.dart';
+import 'features/kural/domain/services/favorites_service.dart';
 import 'features/kural/presentation/bloc/kural_bloc.dart';
+import 'core/services/notification_service.dart';
+import 'core/services/share_service.dart';
 
 final sl = GetIt.instance;
 
@@ -36,6 +39,11 @@ Future<void> init() async {
   sl.registerLazySingleton<KuralLocalDataSource>(
     () => KuralLocalDataSourceImpl(isar: sl()),
   );
+
+  // Services
+  sl.registerLazySingleton(() => FavoritesService(sl()));
+  sl.registerLazySingleton(() => NotificationService());
+  sl.registerLazySingleton(() => ShareService());
 
   //! Core
   sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl()));
