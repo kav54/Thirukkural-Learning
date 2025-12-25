@@ -115,19 +115,18 @@ App Root
 - App Logo centered at the top
 - Title: "தொடங்க உள்நுழையவும்" (Sign in to start)
 - Subtitle: "Save your progress and achievements"
-- Authentication Buttons:
+- Authentication Button:
   - "Continue with Google" button (Google G logo)
-  - "Continue with Facebook" button (Facebook f logo)
 
 **Content**:
 ```
 Title: உங்களை வரவேற்கிறோம்!
 Subtitle: Login to track your learning journey
-Buttons: Google, Facebook
+Button: Google
 ```
 
 **Prompt for AI**:
-"Design a clean authentication screen with the app logo at the top, distinct 'Continue with Google' and 'Continue with Facebook' buttons with official branding colors/icons. Background should be consistent with the app theme (light gradient)."
+"Design a clean authentication screen with the app logo at the top, a distinct 'Continue with Google' button with official branding colors/icons. Background should be consistent with the app theme (light gradient)."
 
 ---
 
@@ -816,7 +815,7 @@ Kural 1:
 பகவன் முதற்றே உலகு
 
 Kural 2:
-கற்றதனால் ஆய பயனென்கொல் வாலறிவன்
+கற்றதனால் ஆய பயன்கொல் வாலறிவன்
 நற்றாள் தொழாஅர் எனின்
 
 Kural 3:

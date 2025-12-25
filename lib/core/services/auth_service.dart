@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -32,30 +31,9 @@ class AuthService {
     }
   }
 
-  // Sign in with Facebook
-  Future<UserCredential?> signInWithFacebook() async {
-    try {
-      final LoginResult result = await FacebookAuth.instance.login();
-
-      if (result.status == LoginStatus.success) {
-        final OAuthCredential credential = FacebookAuthProvider.credential(
-          result.accessToken!.token, // Updated property name
-        );
-
-        return await _auth.signInWithCredential(credential);
-      } else {
-        return null; // User canceled or failed
-      }
-    } catch (e) {
-      // Log error in production
-      rethrow;
-    }
-  }
-
   // Sign out
   Future<void> signOut() async {
     await _googleSignIn.signOut();
-    await FacebookAuth.instance.logOut();
     await _auth.signOut();
   }
 }

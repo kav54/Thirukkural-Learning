@@ -8,19 +8,19 @@ class KuralModel {
   Id id = Isar.autoIncrement;
 
   @Index()
-  late int number;
+  int number = 0;
   
-  late String line1Tamil;
-  late String line2Tamil;
-  late String meaningTamil;
-  late String meaningEnglish;
+  String line1Tamil = '';
+  String line2Tamil = '';
+  String meaningTamil = '';
+  String meaningEnglish = '';
   
   @Index()
-  late int chapterNumber;
+  int chapterNumber = 0;
   
-  late String chapterName;
+  String chapterName = '';
   
-  late bool isFavorite;
+  bool isFavorite = false;
 
   KuralModel();
 

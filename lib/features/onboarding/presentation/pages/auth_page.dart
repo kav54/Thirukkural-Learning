@@ -36,26 +36,6 @@ class _AuthPageState extends State<AuthPage> {
     }
   }
 
-  Future<void> _handleFacebookSignIn() async {
-    setState(() => _isLoading = true);
-    try {
-      final userCredential = await _authService.signInWithFacebook();
-      if (userCredential != null && mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const HomeDashboardPage()),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Facebook Sign-In failed: ${e.toString()}')),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -122,19 +102,6 @@ class _AuthPageState extends State<AuthPage> {
                       onPressed: _handleGoogleSignIn,
                     ),
                     
-                    const SizedBox(height: 16),
-                    
-                    // Facebook Button
-                    _SocialLoginButton(
-                      icon: FontAwesomeIcons.facebookF,
-                      label: 'Continue with Facebook',
-                      color: const Color(0xFF1877F2),
-                      textColor: Colors.white,
-                      borderColor: Colors.transparent,
-                      iconColor: Colors.white,
-                      onPressed: _handleFacebookSignIn,
-                    ),
-
                     const Spacer(flex: 1),
                   ],
                 ),

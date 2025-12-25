@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:isar/isar.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../../../injection_container.dart' as di;
+import '../../../../core/services/auth_service.dart';
+import '../../../../core/services/streak_service.dart';
 import '../../../kural/data/models/kural_model.dart';
-
+import '../../../onboarding/presentation/pages/auth_page.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -15,12 +18,19 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   final Isar _isar = di.sl<Isar>();
+  final AuthService _authService = di.sl<AuthService>();
+  final StreakService _streakService = di.sl<StreakService>();
+  
+  User? _currentUser;
   int _totalKurals = 0;
   int _completedKurals = 0;
+  int _currentStreak = 0;
 
   @override
   void initState() {
     super.initState();
+    _currentUser = _authService.currentUser;
+    _currentStreak = _streakService.getCurrentStreak();
     _loadStats();
   }
 
@@ -30,6 +40,24 @@ class _ProfilePageState extends State<ProfilePage> {
       _totalKurals = total;
       _completedKurals = (total * 0.15).round(); // Demo: 15% completed
     });
+  }
+
+  Future<void> _handleLogout() async {
+    try {
+      await _authService.signOut();
+      if (mounted) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => const AuthPage()),
+          (route) => false,
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Logout failed: $e')),
+        );
+      }
+    }
   }
 
   @override
@@ -81,6 +109,10 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget _buildProfileCard() {
+    final name = _currentUser?.displayName ?? 'Little Learner';
+    final photoUrl = _currentUser?.photoURL;
+    final email = _currentUser?.email ?? 'learner@thirukkural.com';
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: const EdgeInsets.all(24),
@@ -108,16 +140,17 @@ class _ProfilePageState extends State<ProfilePage> {
               color: Colors.white,
               shape: BoxShape.circle,
               border: Border.all(color: Colors.white, width: 3),
+              image: photoUrl != null 
+                ? DecorationImage(image: NetworkImage(photoUrl), fit: BoxFit.cover)
+                : null,
             ),
-            child: const Icon(
-              Icons.person,
-              size: 40,
-              color: Color(0xFF8B5CF6),
-            ),
+            child: photoUrl == null 
+              ? const Icon(Icons.person, size: 40, color: Color(0xFF8B5CF6))
+              : null,
           ),
           const SizedBox(height: 16),
           Text(
-            'Priya Kumar',
+            name,
             style: GoogleFonts.catamaran(
               fontSize: 24,
               fontWeight: FontWeight.w700,
@@ -125,6 +158,14 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
           ),
           const SizedBox(height: 4),
+          Text(
+            email,
+            style: GoogleFonts.quicksand(
+              fontSize: 14,
+              color: Colors.white.withOpacity(0.8),
+            ),
+          ),
+          const SizedBox(height: 12),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             decoration: BoxDecoration(
@@ -143,7 +184,7 @@ class _ProfilePageState extends State<ProfilePage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildProfileStat('🔥', '5', 'Day Streak'),
+              _buildProfileStat('🔥', '$_currentStreak', 'Day Streak'),
               Container(width: 1, height: 40, color: Colors.white.withOpacity(0.3)),
               _buildProfileStat('⭐', '120', 'Points'),
               Container(width: 1, height: 40, color: Colors.white.withOpacity(0.3)),
@@ -407,7 +448,7 @@ class _ProfilePageState extends State<ProfilePage> {
           _buildSettingItem(Icons.dark_mode_outlined, 'Dark Mode', () {}),
           _buildSettingItem(Icons.help_outline, 'Help & Support', () {}),
           _buildSettingItem(Icons.info_outline, 'About', () {}),
-          _buildSettingItem(Icons.logout, 'Logout', () {}, isDestructive: true),
+          _buildSettingItem(Icons.logout, 'Logout', _handleLogout, isDestructive: true),
         ],
       ),
     ).animate().fadeIn(delay: 400.ms);
