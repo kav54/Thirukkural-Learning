@@ -78,28 +78,6 @@ class DailyChallengePage extends StatelessWidget {
           ),
           false,
         ),
-        
-        _buildGameCard(
-          context,
-          'Match Pairs',
-          '~3 mins',
-          Icons.grid_view,
-          const LinearGradient(
-            colors: [Color(0xFF10B981), Color(0xFF059669)],
-          ),
-          false,
-        ),
-        
-        _buildGameCard(
-          context,
-          'True or False',
-          '~2 mins',
-          Icons.check_circle_outline,
-          const LinearGradient(
-            colors: [Color(0xFFEC4899), Color(0xFFDB2777)],
-          ),
-          false,
-        ),
       ],
     );
   }

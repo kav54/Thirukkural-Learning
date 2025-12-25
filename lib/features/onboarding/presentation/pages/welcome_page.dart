@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'age_selection_page.dart';
+import '../../../../features/home/presentation/pages/home_dashboard_page.dart';
+import '../../../../features/kural/presentation/bloc/kural_bloc.dart';
+import '../../../../injection_container.dart' as di;
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
@@ -67,10 +70,14 @@ class WelcomePage extends StatelessWidget {
                 height: 56,
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.of(context).push(
+                    Navigator.of(context).pushAndRemoveUntil(
                       MaterialPageRoute(
-                        builder: (context) => const AgeSelectionPage(),
+                        builder: (context) => BlocProvider(
+                          create: (context) => di.sl<KuralBloc>(),
+                          child: const HomeDashboardPage(),
+                        ),
                       ),
+                      (route) => false,
                     );
                   },
                   style: ElevatedButton.styleFrom(
